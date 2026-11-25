@@ -190,44 +190,6 @@ button,select,input,a{touch-action:manipulation}
   .seg .lg{display:none}.seg .sh{display:inline}
   .seg button{padding:7px 10px;font-size:12.5px}
   .hide-sm{display:none!important}
-  .quadro .tw{overflow:visible}
-  table.ct{min-width:0;display:block;font-size:14px}
-  .ct thead{display:none}
-  .ct tbody,.ct tfoot{display:block}
-  .ct tbody tr{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:8px 8px;padding:12px 12px 14px;border-bottom:1px solid var(--line);background:#fff;
-    grid-template-areas:"code code code code tipo tipo tipo . . . st del" "desc desc desc desc desc desc desc desc desc desc desc desc" "w w w w fp fp fp fase fase fase fase fase" "dem dem dem dem dem dem dem qtd qtd comp comp comp" "dj dj dj cabo cabo cabo dr dr dr dr dr dr" "va va va ib ib ib dv dv dv dvt dvt dvt"}
-  .ct tbody tr.empty-row{display:block}
-  .ct tbody tr.feed{background:#FDF6F7}
-  .ct td{display:block;padding:0;border:0;background:transparent!important;min-width:0;white-space:normal}
-  .ct td:empty{display:none}
-  .ct .sticky{position:static}
-  .ct td.n{text-align:left;padding-right:0;font-size:14px}
-  .ct td:nth-child(1){grid-area:code}.ct td:nth-child(2){grid-area:tipo}.ct td:nth-child(3){grid-area:desc}.ct td:nth-child(4){grid-area:dem}
-  .ct td:nth-child(5){grid-area:qtd}.ct td:nth-child(6){grid-area:w}.ct td:nth-child(7){grid-area:fp}.ct td:nth-child(8){grid-area:fase}
-  .ct td:nth-child(9){grid-area:comp}.ct td:nth-child(10){grid-area:va}.ct td:nth-child(11){grid-area:ib}.ct td:nth-child(12){grid-area:dj}
-  .ct td:nth-child(13){grid-area:cabo}.ct td:nth-child(14){grid-area:dr}.ct td:nth-child(15){grid-area:dv}.ct td:nth-child(16){grid-area:dvt}
-  .ct td:nth-child(17){grid-area:st;justify-self:end;align-self:center}.ct td:nth-child(18){grid-area:del;justify-self:end;align-self:center}
-  .ct tbody td::before{display:block;font-size:10.5px;font-weight:650;color:var(--ink3);margin:0 0 2px;letter-spacing:.01em;white-space:nowrap}
-  .ct td:nth-child(4)::before{content:"Demanda"}.ct td:nth-child(5)::before{content:"Nº"}.ct td:nth-child(6)::before{content:"Potência (W)"}
-  .ct td:nth-child(7)::before{content:"FP"}.ct td:nth-child(8)::before{content:"Fases"}.ct td:nth-child(9)::before{content:"Comp. (m)"}
-  .ct td:nth-child(10)::before{content:"S (VA)"}.ct td:nth-child(11)::before{content:"Ib (A)"}.ct td:nth-child(12)::before{content:"Disj. (A)"}
-  .ct td:nth-child(13)::before{content:"Cabo (mm²)"}.ct td:nth-child(14)::before{content:"DR"}.ct td:nth-child(15)::before{content:"ΔV (%)"}
-  .ct td:nth-child(16)::before{content:"ΔV tot. (%)"}
-  .ct td[data-k]{font-weight:600;color:var(--ink);line-height:1.2}
-  .ct .in,.ct .sel{height:36px;font-size:15px;border-color:var(--line2);background:#fff;width:100%}
-  .ct .in.code{width:70px;font-size:16px}.ct .in.desc{min-width:0}
-  .ct .cwrap{gap:2px}
-  .ct .drc,.ct .fz-wrap{display:flex;gap:4px;align-items:center}
-  .ct .drc .sel{width:auto;flex:1 1 auto;min-width:0}.ct .fz-wrap .sel{flex:1 1 auto;min-width:0}
-  .ct .in.cv{width:56px;flex:none}
-  .ct td:nth-child(2) .tag{display:inline-block;margin-top:8px}
-  .ct td:nth-child(3) .link{padding:6px 0;text-align:left}
-  .ct td:nth-child(8) .tag{display:inline-block;margin-top:6px}
-  .ct .grip{width:30px;height:36px}
-  .ct tfoot tr{display:flex;flex-wrap:wrap;gap:4px 14px;padding:10px 12px;background:#FAFAFB}
-  .ct tfoot td{display:block;padding:0;border:0;background:transparent}
-  .ct tfoot td:empty{display:none}
-  .ct tfoot td[data-qtw]::after{content:" W"}.ct tfoot td[data-qtva]::after{content:" VA"}
   .q-foot{flex-direction:column}
   .phs-box{min-width:0;width:100%}
   .ptab{font-size:12.5px}
@@ -378,6 +340,134 @@ tbody.drop-target td{background:#FDF6F7}
   .memo tr.m-feed td{background:#FDF6F7}
   .memo tr.mat-g td{background:#FAF3F4;font-weight:700}
 }
+/* celular: lista linear, edição em tela cheia e menu */
+.mtop,.msum,.mlist,.mqh,.fab,.madd{display:none}
+body.sheet-open{overflow:hidden}
+.csheet-bg{position:fixed;inset:0;z-index:45;background:rgba(15,18,22,.45);animation:fadein .15s ease}
+.csheet{position:absolute;inset:0;background:var(--bg);display:flex;flex-direction:column;animation:slideup .2s ease}
+.cs-h{background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;padding:8px 10px;padding-top:calc(8px + env(safe-area-inset-top));flex:none}
+.cs-h .icon-btn{width:40px;height:40px;color:var(--ink);border-radius:10px}
+.cs-h .icon-btn svg{width:20px;height:20px}
+.cs-h b{flex:1;min-width:0;font-size:16px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cs-h .btn{height:38px;padding:0 14px;font-size:14px;border-radius:10px}
+.cs-b{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding-bottom:calc(28px + env(safe-area-inset-bottom))}
+.cs-b>*{max-width:640px;margin-left:auto;margin-right:auto}
+.cs-sec{font-size:11.5px;font-weight:700;letter-spacing:.06em;color:var(--brand-d);text-transform:uppercase;padding:16px 16px 6px}
+.cs-card{background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:2px 16px 14px}
+.cs-f{display:block;padding-top:12px;min-width:0}
+.cs-f>span{display:block;font-size:12px;color:var(--ink2);font-weight:600;margin-bottom:5px}
+.cs-f .fi,.cs-f .fs{height:44px;font-size:16px;border-radius:10px}
+.cs-two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.cs-seg{display:flex;border:1px solid var(--line2);border-radius:10px;overflow:hidden;height:44px;background:#fff}
+.cs-seg button{flex:1;border:0;border-right:1px solid var(--line2);background:transparent;font:inherit;font-weight:600;color:var(--ink2);font-size:13.5px;cursor:pointer;padding:0 2px;min-width:0}
+.cs-seg button:last-child{border-right:0}
+.cs-seg button.on{background:var(--brand-l);color:var(--brand-d)}
+.cs-fz{display:flex;flex-wrap:wrap;gap:8px}
+.cs-fz button{min-width:58px;height:42px;border:1px solid var(--line2);border-radius:10px;background:#fff;display:inline-flex;align-items:center;justify-content:center;padding:0 10px;cursor:pointer}
+.cs-fz button.on{border-color:var(--brand-d);background:var(--brand-l);box-shadow:inset 0 0 0 1px var(--brand-d)}
+.cs-fz .mfz i{font-size:12px;line-height:20px;padding:0 6px}
+.cs-hint{font-size:12px;color:var(--ink3);margin-top:6px}
+.cs-hint .mfz{vertical-align:-3px}
+.cs-chk{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--ink2);margin-top:10px}
+.cs-chk input{width:20px;height:20px;accent-color:var(--brand);margin:0}
+.cs-res{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;padding-top:12px}
+.cs-res>div{background:var(--bg);border-radius:10px;padding:8px 10px;min-width:0}
+.cs-res span{display:block;font-size:11px;color:var(--ink2)}
+.cs-res b{font-size:15px}
+.cs-res small{display:block;font-size:11px;color:var(--ink3)}
+.cs-msgs{display:flex;flex-direction:column;gap:6px;padding-top:10px}
+.cs-msgs:empty{display:none}
+.cs-foot{padding:22px 16px 8px}
+.cs-foot .btn{height:44px;width:100%;font-size:14px;border-radius:10px}
+.mfz{display:inline-flex;gap:2px;flex:none}
+.mfz i{font-style:normal;font-size:10.5px;font-weight:700;color:#fff;border-radius:4px;padding:0 4px;line-height:16px}
+.mfz .R{background:var(--pR)}.mfz .S{background:var(--pS)}.mfz .T{background:var(--pT)}
+.amenu{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:20px 20px 0 0;padding:8px 0 calc(14px + env(safe-area-inset-bottom));max-height:88vh;overflow-y:auto;animation:slideup .2s ease}
+.amenu .handle{width:40px;height:4px;border-radius:4px;background:var(--line2);margin:4px auto 8px}
+.mi{display:flex;width:100%;align-items:center;gap:14px;padding:12px 20px;font:inherit;font-size:15px;border:0;background:none;text-align:left;color:var(--ink);cursor:pointer}
+.mi:active{background:#F2F3F5}
+.mi svg{color:var(--ink2);width:20px;height:20px;flex:none}
+.mi small{display:block;font-size:12px;color:var(--ink3)}
+.msep{height:1px;background:var(--line);margin:6px 0}
+@keyframes slideup{from{transform:translateY(28px);opacity:.5}to{transform:none;opacity:1}}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+@media print{.csheet-bg,.fab{display:none!important}}
+@media (max-width:760px){
+  .top-in.ed{padding:6px 8px 8px;flex-wrap:nowrap}
+  .top-in.ed>.brand,.top-in.ed>.top-mid,.top-in.ed>.top-act{display:none!important}
+  .mtop{display:flex;align-items:center;gap:4px;width:100%;min-width:0}
+  .mtop .icon-btn{width:40px;height:40px;color:var(--ink);border-radius:10px;flex:none}
+  .mtop .icon-btn svg{width:20px;height:20px}
+  .mtop .mbtn{border:1px solid var(--line2);background:#fff}
+  .mt{flex:1;min-width:0;line-height:1.3;padding:0 2px}
+  .mt b{display:block;font-size:16px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .msub{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--ink2);white-space:nowrap;overflow:hidden}
+  .msync{display:inline-flex;align-items:center;gap:5px;flex:none}
+  .msync .dot{width:8px;height:8px;border-radius:50%;background:#B8BEC6;flex:none}
+  .msync[data-st="ok"] .dot{background:var(--ok)}
+  .msync[data-st="pend"] .dot,.msync[data-st="busy"] .dot{background:#D99A00}
+  .msync[data-st="busy"] .dot{animation:pulse 1s ease-in-out infinite}
+  .msync[data-st="erro"] .dot{background:var(--bad)}
+  .msync[data-st="offline"] .dot{background:#6E7781}
+  .msub .tsys{overflow:hidden;text-overflow:ellipsis;min-width:0}
+  .wrap.ed{padding:10px 10px 110px}
+  .wrap.ed>.ov.sec{display:none}
+  .wrap.ed.v-entrada>.ov.sec{display:block;margin-top:12px}
+  .wrap.ed.v-entrada>.ov.sec>.card+.card{display:none}
+  .wrap.ed [data-dados]:not([open]){display:none}
+  .wrap.ed [data-dados]{margin-bottom:10px}
+  .msum{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+  .mk{background:#fff;border:1px solid var(--line);border-radius:12px;padding:9px 10px;text-align:left;font:inherit;color:var(--ink);cursor:pointer;min-width:0}
+  .mk span{display:block;font-size:11px;color:var(--ink2)}
+  .mk b{display:block;font-size:17px;font-weight:700;line-height:1.3}
+  .mk small{display:block;font-size:11px;color:var(--ink3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .wrap.ed .segbar{padding:10px 0 6px;margin-top:4px}
+  .wrap.ed .seg{background:transparent;padding:0;gap:6px;width:100%;scrollbar-width:none}
+  .wrap.ed .seg::-webkit-scrollbar{display:none}
+  .wrap.ed .seg button{padding:7px 13px;font-size:13px;border-radius:999px;background:#fff;border:1px solid var(--line);color:var(--ink2);flex:none}
+  .wrap.ed .seg button.on{background:var(--brand);border-color:var(--brand);color:#fff;box-shadow:none}
+  .quadro{margin-top:12px}
+  .qc>.tw{display:none}
+  .qc:not(.qopen)>.q-head{display:none}
+  .qc.qopen>.q-head{border-bottom:1px solid var(--line)}
+  .mqh{display:flex;align-items:center;gap:8px;padding:10px 10px 10px 14px;border-bottom:1px solid var(--line);background:#FCFCFD}
+  .mqn{min-width:0;flex:1}
+  .mqh b{font-size:15.5px;color:var(--brand-d)}
+  .mqd{font-size:13px;color:var(--ink2);margin-left:6px}
+  .mqh small{display:block;font-size:12px;color:var(--ink3);margin-top:1px}
+  .mlist{display:block}
+  .mrow{display:flex;align-items:center;gap:6px;padding:8px 10px 8px 2px;border-bottom:1px solid var(--line);cursor:pointer;background:#fff;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+  .mrow:active{background:#F7F8FA}
+  .mgrip{width:30px;height:38px;border:0;background:transparent;color:#B3BAC2;display:flex;align-items:center;justify-content:center;touch-action:none;padding:0;flex:none;cursor:grab}
+  .mgrip svg{width:16px;height:16px}
+  .mcd{width:40px;flex:none;font-weight:700;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .mmid{flex:1;min-width:0}
+  .md{font-size:14.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .md.vazio,.ms .vazio{color:var(--ink3)}
+  .ms{font-size:12.5px;color:var(--ink2);display:flex;gap:6px;align-items:center;margin-top:2px;white-space:nowrap;overflow:hidden}
+  .ms>span:last-child{overflow:hidden;text-overflow:ellipsis}
+  .mst{width:8px;height:8px;border-radius:50%;flex:none}
+  .mst.ok{background:var(--ok)}
+  .mst.bad{background:#D29922}
+  .mchev{color:var(--ink3);display:flex;flex:none}
+  .mchev svg{width:18px;height:18px}
+  .mfeed .mcd{color:var(--brand-d)}
+  .mfeed .md{font-weight:600}
+  .mrow.drag-row{box-shadow:0 6px 18px rgba(0,0,0,.18);position:relative;z-index:2}
+  .mrow.flash{animation:flash 1.8s ease}
+  .mlist.drop-target{outline:2px dashed var(--brand);outline-offset:-2px}
+  .mempty{padding:16px 14px;color:var(--ink3);font-size:13px}
+  .madd{display:flex;width:calc(100% - 24px);margin:12px;justify-content:center;align-items:center;gap:6px;border:1.5px dashed var(--line2);border-radius:12px;padding:12px;color:var(--brand-d);font:inherit;font-weight:600;background:#fff;font-size:14px;cursor:pointer}
+  .qc .q-foot [data-act="addc"]{display:none}
+  .qc:not(.qopen) .q-foot-l>div:first-child{display:none!important}
+  .qc.qopen .q-name,.qc.qopen .q-desc{border-color:var(--line2);background:#fff}
+  .qc.qopen .q-row1{gap:8px}
+  .qc.qopen .q-desc{flex:1 1 160px}
+  .fab{display:flex;position:fixed;right:16px;bottom:calc(18px + env(safe-area-inset-bottom));z-index:35;background:var(--brand);color:#fff;border:0;border-radius:16px;padding:0 18px 0 14px;height:50px;gap:6px;align-items:center;font:inherit;font-weight:600;font-size:15px;box-shadow:0 6px 16px rgba(196,62,80,.35);cursor:pointer}
+  .fab svg{width:20px;height:20px}
+  body.dragging .fab{display:none}
+  .toast{bottom:calc(84px + env(safe-area-inset-bottom))}
+}
 </style>
 </head>
 <body>
@@ -477,7 +567,7 @@ const secFase=t=>{const m=String(t||'').match(/^(?:\d+x)?(\d+(?:[.,]\d+)?)/);ret
 const terraDe=t=>{const p=String(t||'').split('/');return p.length>=3?parseFloat(p[2]):null};
 const isoLbl=k=>k==='PVC'?'PVC 70 °C':'XLPE/HEPR 90 °C';
 const tensLbl=s=>s.tensao==='220/380'?'380/220 V':'220/127 V';
-const I={
+const I={more:'<svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.4" fill="currentColor" stroke="none"/></svg>',chevr:'<svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>',sync:'<svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.3-4.9L4 8"/><path d="M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14.3 4.9L20 16"/><path d="M20 20v-4h-4"/></svg>',edit:'<svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M14 6l4 4"/></svg>',
  plus:'<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
  trash:'<svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg>',
  lock:'<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',
@@ -684,7 +774,7 @@ function seed(){
 }
 
 /* ---------- estrutura ---------- */
-let cur=null,R=null,PR=null,undoSnap=null,ui={dadosOpen:window.innerWidth>760,view:'cargas',printMode:'quadro'};
+let cur=null,R=null,PR=null,undoSnap=null,ui={dadosOpen:window.innerWidth>760,view:'cargas',printMode:'quadro',qOpen:{}};
 const rootOf=s=>s.quadros.find(q=>q.tipo==='medidor')||s.quadros[0];
 const qById=id=>cur.quadros.find(q=>q.id===id);
 const cById=id=>cur.circuitos.find(c=>c.id===id);
@@ -1241,7 +1331,7 @@ function renderTop(){
     <button class="btn sm" data-act="print" title="Imprimir o quadro de cargas ou salvar em PDF">${I.print}<span class="lbl">Imprimir</span></button>
     <button class="btn sm" data-act="csv" title="Baixar planilha CSV para Excel">${I.download}<span class="lbl">Planilha</span></button>
     <button class="btn sm hide-sm" data-act="copy" title="Copiar tabela para colar no Excel">${I.copy}<span class="lbl">Copiar</span></button>
-  </div>`;
+  </div>${mtopHTML()}`;
 }
 
 /* ---------- tela inicial ---------- */
@@ -1291,16 +1381,18 @@ function restoreFocus(k){
 function renderEditor(keep){
   const y=window.scrollY;const fk=focusKey();
   R=calc(cur);document.title=cur.nome+' | Quadro de cargas';renderTop();
-  app.innerHTML=`<section class="wrap">
-    ${storageOk?'':'<div class="warnbar">Este navegador não permite salvar dados aqui. Use "Exportar backup" na tela de serviços para não perder o trabalho.</div>'}
-    ${dadosHTML()}
-    <div class="ov sec">
+  const mob=isMob();
+  const ovH=`<div class="ov sec">
       <div class="card">${entradaHTML()}</div>
       <div class="card"><div class="card-h"><h2>Estrutura dos quadros</h2><button class="btn sm" data-act="addq" data-q="${rootOf(cur).id}">${I.plus} Quadro</button></div><div data-tree></div>
         <p class="hint">Toque em um quadro para ir até ele. Cada quadro pode alimentar outros quadros.</p></div>
-    </div>
-    ${segHTML()}${viewHTML()}
-  </section>`;
+    </div>`;
+  app.innerHTML=`<section class="wrap ed v-${ui.view}">
+    ${storageOk?'':'<div class="warnbar">Este navegador não permite salvar dados aqui. Use "Exportar backup" na tela de serviços para não perder o trabalho.</div>'}
+    ${dadosHTML()}
+    <div class="msum" data-msum></div>
+    ${mob?segHTML()+ovH:ovH+segHTML()}${viewHTML()}
+  </section>${ui.view==='cargas'?`<button class="fab" data-act="fab" aria-label="Adicionar circuito">${I.plus}<span>Circuito</span></button>`:''}`;
   refresh();
   if(keep)window.scrollTo(0,y);
   restoreFocus(fk);
@@ -1769,7 +1861,8 @@ function quadroHTML(q){
   const pai=isRoot?null:qById(q.pai);
   const fOpts=isRoot?[q.fases]:optsFor(pai?pai.fases:SIS[s.sistema].fases);
   const it=itensQuadro(s,q);
-  return `<article class="quadro" id="q-${q.id}" data-qid="${q.id}">
+  return `<article class="quadro qc${ui.qOpen&&ui.qOpen[q.id]?' qopen':''}" id="q-${q.id}" data-qid="${q.id}">
+    ${mqhHTML(q)}
     <div class="q-head">
       <div class="q-row1">
         <input class="q-name" data-qf="nome" value="${esc(q.nome)}" aria-label="Nome do quadro">
@@ -1793,6 +1886,7 @@ function quadroHTML(q){
       <tbody data-tb="${q.id}">${it.length?it.map(x=>x.k==='c'?rowC(x.o,q):rowF(x.o)).join(''):`<tr class="empty-row"><td colspan="18" style="padding:16px;color:var(--ink3)">Nenhum circuito. Use "Adicionar circuito" ou arraste um circuito de outro quadro para cá.</td></tr>`}</tbody>
       <tfoot><tr><td class="sticky" colspan="5">Total instalado no quadro</td><td class="n" data-qtw="${q.id}"></td><td></td><td></td><td></td><td class="n" data-qtva="${q.id}"></td><td colspan="8"></td></tr></tfoot>
     </table></div>
+    ${mlistHTML(q,it)}
     <div class="q-foot">
       <div class="q-foot-l">
         <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm primary" data-act="addc" data-q="${q.id}">${I.plus} Adicionar circuito</button><button class="btn sm" data-act="renum" data-q="${q.id}" title="Refaz os códigos (prefixo + número) na ordem em que os circuitos estão">Renumerar</button></div>
@@ -1923,6 +2017,7 @@ function refresh(){
     const gi=app.querySelector('[data-dgi]');if(gi)gi.innerHTML=interSVG(s,R,PR);
     s.quadros.forEach(q=>{const el=app.querySelector(`[data-dg="${q.id}"]`);if(el)el.innerHTML=unifilarSVG(s,q,R,PR)});
   }
+  paintMobile();paintSheet();
 }
 function treeHTML(){
   const s=cur,root=rootOf(s);const vis=new Set();
@@ -1939,6 +2034,224 @@ function treeHTML(){
   return `<ul class="tree">${node(root)}</ul>`;
 }
 
+/* ---------- celular: lista linear, tela de edição e menu ---------- */
+const MQ=window.matchMedia('(max-width:760px)');
+const isMob=()=>MQ.matches;
+try{history.scrollRestoration='manual'}catch(e){}
+const fzChips=f=>`<span class="mfz">${String(f||'').split('').map(l=>`<i class="${l}">${l}</i>`).join('')}</span>`;
+function mrowC(c){
+  return `<div class="mrow" data-cid="${c.id}" data-act="msheet">
+    <button type="button" class="mgrip" data-grip data-act="nop" aria-label="Arrastar o circuito ${esc(c.codigo)}">${I.grip}</button>
+    <span class="mcd" data-m="cod">${esc(c.codigo)}</span>
+    <div class="mmid"><div class="md" data-m="desc">${esc(c.desc)}</div><div class="ms" data-m="sub"></div></div>
+    <span class="mst" data-m="st"></span><span class="mchev">${I.chevr}</span>
+  </div>`;
+}
+function mrowF(k){
+  return `<div class="mrow mfeed" data-fq="${k.id}" data-act="msheet">
+    <button type="button" class="mgrip" data-grip data-act="nop" aria-label="Arrastar o alimentador ${esc(k.alim.codigo)}">${I.grip}</button>
+    <span class="mcd" data-m="cod">${esc(k.alim.codigo)}</span>
+    <div class="mmid"><div class="md" data-m="desc">Alimentação ${esc(k.nome)}</div><div class="ms" data-m="sub"></div></div>
+    <span class="mst" data-m="st"></span><span class="mchev">${I.chevr}</span>
+  </div>`;
+}
+function mlistHTML(q,it){
+  return `<div class="mlist" data-tb="${q.id}">${it.length?it.map(x=>x.k==='c'?mrowC(x.o):mrowF(x.o)).join(''):'<div class="mempty empty-row">Nenhum circuito neste quadro.</div>'}</div>
+    ${q===rootOf(cur)&&!it.some(x=>x.k==='c')?'':`<button class="madd" data-act="addc" data-q="${q.id}">${I.plus} Adicionar circuito em ${esc(q.nome)}</button>`}`;
+}
+function mqhHTML(q){
+  const op=!!(ui.qOpen&&ui.qOpen[q.id]);
+  return `<div class="mqh"><div class="mqn"><b data-qname="${q.id}">${esc(q.nome)}</b><span class="mqd" data-mqd="${q.id}">${esc(q.descricao||'')}</span><small data-mqsum="${q.id}"></small></div>
+    <button class="btn sm" data-act="mqedit" data-q="${q.id}">${op?'Fechar':'Editar'}</button></div>`;
+}
+function mtopHTML(){
+  return `<div class="mtop"><button class="icon-btn" data-act="home" aria-label="Voltar aos serviços">${I.back}</button>
+    <div class="mt"><b data-mtitle>${esc(cur.nome)}</b><span class="msub"><span class="msync" data-sync data-st="${syncSt}"><span class="dot"></span><span class="lbl">${SYNC_PILL[syncSt]}</span></span><span>·</span><span class="tsys" data-msys>${esc(sysLabel(cur))}</span></span></div>
+    <button class="icon-btn mbtn" data-act="menu" aria-label="Mais ações">${I.more}</button></div>`;
+}
+function paintMobile(){
+  if(!cur||!R||!isMob())return;const s=cur;
+  const sm=app.querySelector('[data-msum]');
+  if(sm){const e=R.ent;sm.innerHTML=`<button class="mk" data-act="view" data-v="entrada"><span>Carga</span><b>${nfx(e.C/1000,2)}</b><small>kW</small></button><button class="mk" data-act="view" data-v="entrada"><span>Demanda</span><b>${nfx(e.D/1000,2)}</b><small>kVA</small></button><button class="mk" data-act="view" data-v="entrada"><span>Entrada</span><b>${e.cat?esc(e.cat.cat):'-'}</b><small>${e.In?nf(e.In,0)+' A':'sem categoria'}</small></button>`}
+  const mt=document.querySelector('[data-mtitle]');if(mt)mt.textContent=s.nome;
+  const ms=document.querySelector('[data-msys]');if(ms)ms.textContent=sysLabel(s);
+  app.querySelectorAll('.mrow[data-cid]').forEach(r=>{
+    const c=cById(r.dataset.cid),x=R.c[r.dataset.cid];if(!c||!x)return;const pc=PR&&PR.c[c.id];const has=x.ib>0;
+    r.querySelector('[data-m="cod"]').textContent=c.codigo||'?';
+    const d=r.querySelector('[data-m="desc"]');d.textContent=c.desc||'Sem descrição';d.classList.toggle('vazio',!c.desc);
+    r.querySelector('[data-m="sub"]').innerHTML=has?`<span>${nf(x.w,0)} W</span>${fzChips(c.fases)}<span>${x.In?nf(x.In,0):'?'} A · ${x.cabo?nf(x.cabo,1):'?'} mm²${pc&&pc.grp?' · '+esc(pc.grp):''}</span>`:`${fzChips(c.fases)}<span class="vazio">${c.tipo==='RES'?'reserva':'sem potência'}</span>`;
+    const m=x.msgs||[];r.querySelector('[data-m="st"]').className='mst'+(m.length?' bad':has?' ok':'');
+  });
+  app.querySelectorAll('.mrow[data-fq]').forEach(r=>{
+    const k=qById(r.dataset.fq),x=R.f[r.dataset.fq];if(!k||!x)return;const has=x.ib>0;
+    r.querySelector('[data-m="cod"]').textContent=k.alim.codigo||'?';
+    r.querySelector('[data-m="desc"]').textContent='Alimentação '+k.nome;
+    r.querySelector('[data-m="sub"]').innerHTML=has?`<span>${nfx(x.va/1000,2)} kVA</span>${fzChips(k.fases)}<span>${x.In?nf(x.In,0):'?'} A · ${x.cabo?nf(x.cabo,1):'?'} mm²</span>`:`${fzChips(k.fases)}<span class="vazio">sem carga</span>`;
+    const m=x.msgs||[];r.querySelector('[data-m="st"]').className='mst'+(m.length?' bad':has?' ok':'');
+  });
+  s.quadros.forEach(q=>{
+    const d=app.querySelector(`[data-mqd="${q.id}"]`);if(d)d.textContent=q.descricao||'';
+    const el=app.querySelector(`[data-mqsum="${q.id}"]`);if(!el)return;const t=R.q[q.id],pq=PR&&PR.q[q.id],nk=kidsOf(s,q.id).length;
+    el.textContent=[`${t.nc} circuito${t.nc===1?'':'s'}`,nk?`${nk} quadro${nk===1?'':'s'} alimentado${nk===1?'':'s'}`:'',pq&&pq.isQD?`${pq.caixa} mód.`:''].filter(Boolean).join(' · ');
+  });
+}
+/* histórico: o botão voltar do celular fecha a tela aberta */
+function ovPush(){try{if(!(history.state&&history.state.ov))history.pushState({ov:1},'')}catch(e){}}
+function ovPop(){try{if(history.state&&history.state.ov)history.back()}catch(e){}}
+window.addEventListener('popstate',()=>{const a=!!document.getElementById('csheet');closeMenu(0);if(a){closeSheet(0);if(cur)renderEditor(true)}});
+/* tela de edição (circuito ou alimentador) */
+let sheetSt=null;
+function closeSheet(user){
+  const el=document.getElementById('csheet');if(!el)return;el.remove();sheetSt=null;document.body.classList.remove('sheet-open');
+  if(user){ovPop();if(user===1&&cur)renderEditor(true)}
+}
+function openSheet(tipo,id){
+  if(!cur)return;if(tipo==='c'&&!cById(id))return;if(tipo==='f'&&!qById(id))return;
+  const had=!!document.getElementById('csheet')||!!document.getElementById('amenu');
+  closeSheet(0);closeMenu(0);
+  sheetSt={tipo,id};
+  const bg=document.createElement('div');bg.id='csheet';bg.className='csheet-bg';bg.innerHTML=sheetHTML();
+  document.body.appendChild(bg);document.body.classList.add('sheet-open');wireSheet(bg);paintSheet();
+  if(!had)ovPush();
+}
+function sheetHTML(){
+  const st=sheetSt;const opt=(arr,v)=>arr.map(([a,l])=>`<option value="${a}"${a===v?' selected':''}>${esc(l)}</option>`).join('');
+  const head=`<div class="cs-h"><button class="icon-btn" data-act="closesheet" aria-label="Fechar">${I.x}</button><b data-sh="titulo"></b><button class="btn sm primary" data-act="closesheet">Concluir</button></div>`;
+  if(st.tipo==='c'){
+    const c=cById(st.id),q=qById(c.quadroId);const fo=optsFor(q.fases);
+    return `<div class="csheet" data-cid="${c.id}" role="dialog" aria-modal="true" aria-label="Editar circuito">${head}
+      <div class="cs-b">
+        <div class="cs-sec">Identificação</div>
+        <div class="cs-card">
+          <div class="cs-two"><label class="cs-f"><span>Código</span><input class="fi" data-f="codigo" value="${esc(c.codigo)}" autocomplete="off"></label>
+            <div class="cs-f"><span>Tipo</span><div class="cs-seg">${Object.keys(TIPOS).map(t=>`<button type="button" data-sv="tipo" data-v="${t}" title="${esc(TIPOS[t])}">${t}</button>`).join('')}</div></div></div>
+          <label class="cs-f"><span>Descrição</span><input class="fi" data-f="desc" value="${esc(c.desc)}" placeholder="Ex.: Tomadas cozinha" autocomplete="off"></label>
+          ${cur.quadros.length>1?`<label class="cs-f"><span>Quadro</span><select class="fs" data-sh="quadro">${ordemQuadros(cur).map(x=>`<option value="${x.id}"${x.id===c.quadroId?' selected':''}>${esc(x.nome)}${x.descricao?' · '+esc(x.descricao):''}</option>`).join('')}</select></label>`:''}
+        </div>
+        <div class="cs-sec">Carga</div>
+        <div class="cs-card">
+          <div class="cs-two"><label class="cs-f"><span>Potência (W)</span><input class="fi" inputmode="decimal" data-f="w" value="${fmtIn(c.w)}" placeholder="0"></label>
+            <label class="cs-f"><span>Fator de potência</span><input class="fi" inputmode="decimal" data-f="fp" value="${fmtIn(c.fp)}" placeholder="1"></label></div>
+          <div class="cs-f"><span>Fases</span><div class="cs-fz">${fo.map(o=>`<button type="button" data-sv="fase" data-v="${o}" aria-label="Fases ${o}">${fzChips(o)}</button>`).join('')}</div>
+            <div class="cs-hint" data-sh="fzinfo"></div>
+            <label class="cs-chk"><input type="checkbox" data-sh="fixo"${c.fixo?' checked':''}> Fixar fases no balanceamento</label></div>
+          <div class="cs-two"><label class="cs-f"><span>Parcela da demanda</span><select class="fs" data-f="dem">${opt(DEMOPT,c.dem||'auto')}</select></label>
+            <label class="cs-f"><span>Nº de aparelhos</span><input class="fi" inputmode="numeric" data-f="qtd" value="${fmtIn(c.qtd)}" placeholder="1"></label></div>
+          <div class="cs-hint" data-sh="deminfo"></div>
+          <label class="cs-f" data-sh="cvbox"><span>Potência do motor (cv)</span><input class="fi" inputmode="decimal" data-f="cv" value="${fmtIn(c.cv)}"></label>
+          <label class="cs-f"><span>Comprimento (m)</span><input class="fi" inputmode="decimal" data-f="comp" value="${fmtIn(c.comp)}" placeholder="informar"></label>
+        </div>
+        <div class="cs-sec">Proteção e cabo</div>
+        <div class="cs-card">
+          <div class="cs-two"><label class="cs-f"><span>Disjuntor (A)</span><input class="fi" inputmode="numeric" data-f="dj" value="${fmtIn(c.dj)}"></label>
+            <label class="cs-f"><span>Cabo (mm²)</span><input class="fi" inputmode="decimal" data-f="cabo" value="${fmtIn(c.cabo)}"></label></div>
+          <div class="cs-hint">Em branco, vale o valor sugerido (em cinza).</div>
+          <label class="cs-f"><span>DR</span><select class="fs" data-f="dr">${opt(DROPT,c.dr||'auto')}</select></label>
+          <div class="cs-hint" data-sh="drinfo"></div>
+        </div>
+        <div class="cs-sec">Resultado</div>
+        <div class="cs-card"><div class="cs-res" data-sh="res"></div><div class="cs-msgs" data-sh="msgs"></div></div>
+        <div class="cs-foot"><button class="btn danger" data-act="delc">${I.trash} Excluir circuito</button></div>
+      </div></div>`;
+  }
+  const k=qById(st.id),p=qById(k.pai);
+  return `<div class="csheet" data-fq="${k.id}" role="dialog" aria-modal="true" aria-label="Editar alimentador">${head}
+    <div class="cs-b">
+      <div class="cs-sec">Identificação</div>
+      <div class="cs-card">
+        <label class="cs-f"><span>Código do circuito</span><input class="fi" data-ff="codigo" value="${esc(k.alim.codigo)}" autocomplete="off"></label>
+        <div class="cs-hint">Sai de ${esc(p?p.nome:'')} e alimenta ${esc(k.nome)} · ${fzChips(k.fases)} ${alimLbl(k.fases)}</div>
+        <label class="cs-f"><span>Comprimento (m)</span><input class="fi" inputmode="decimal" data-ff="comp" value="${fmtIn(k.alim.comp)}" placeholder="informar"></label>
+      </div>
+      <div class="cs-sec">Proteção e cabo</div>
+      <div class="cs-card">
+        <div class="cs-two"><label class="cs-f"><span>Disjuntor (A)</span><input class="fi" inputmode="numeric" data-ff="dj" value="${fmtIn(k.alim.dj)}"></label>
+          <label class="cs-f"><span>Cabo (mm²)</span><input class="fi" inputmode="decimal" data-ff="cabo" value="${fmtIn(k.alim.cabo)}"></label></div>
+        <div class="cs-hint" data-sh="fhint">Em branco, vale o valor sugerido (em cinza).</div>
+      </div>
+      <div class="cs-sec">Resultado</div>
+      <div class="cs-card"><div class="cs-res" data-sh="res"></div><div class="cs-msgs" data-sh="msgs"></div></div>
+      <div class="cs-foot"><button class="btn" data-act="goto" data-q="${k.id}">Ir para o quadro ${esc(k.nome)}</button></div>
+    </div></div>`;
+}
+function paintSheet(){
+  const bg=document.getElementById('csheet');if(!bg||!sheetSt||!cur||!R)return;
+  const g=n=>bg.querySelector(`[data-sh="${n}"]`);
+  const res=x=>{const has=x&&x.ib>0;return has?`<div><span>S</span><b>${nf(x.va,0)} VA</b></div><div><span>Ib</span><b>${nf(x.ib,1)} A</b></div><div><span>ΔV no circuito</span><b>${x.dv!=null?nfx(x.dv,2)+'%':'-'}</b>${x.dv==null?'<small>informe o comprimento</small>':''}</div><div><span>ΔV total</span><b>${x.dvt!=null?nfx(x.dvt,2)+'%'+(x.part?'*':''):'-'}</b></div>`:'<p class="cs-hint" style="grid-column:1/-1;margin:0">Informe a potência para calcular.</p>'};
+  const msgs=x=>{const m=x&&x.msgs||[];return m.length?m.map(t=>`<div class="al">${I.alert}<span>${esc(t)}</span></div>`).join(''):(x&&x.ib>0?`<div class="al info">${I.check}<span>Sem pendências.</span></div>`:'')};
+  const ph=(el,x,dj)=>{if(!el)return;const has=x&&x.ib>0;el.placeholder=has?(dj?(x.sugDj?String(x.sugDj)+' sugerido':'>200'):(x.sugCabo?nf(x.sugCabo,1)+' sugerido':'>120')):''};
+  if(sheetSt.tipo==='c'){
+    const c=cById(sheetSt.id);if(!c){closeSheet(2);return}
+    const x=R.c[c.id],q=qById(c.quadroId),pc=PR&&PR.c[c.id];
+    g('titulo').textContent=`Circuito ${c.codigo||''} · ${q?q.nome:''}`;
+    bg.querySelectorAll('[data-sv="tipo"]').forEach(b=>b.classList.toggle('on',b.dataset.v===c.tipo));
+    bg.querySelectorAll('[data-sv="fase"]').forEach(b=>b.classList.toggle('on',b.dataset.v===c.fases));
+    const n=c.fases.length;g('fzinfo').textContent=n===1?`Monofásico, ${R.vfn} V (fase e neutro)`:n===2?`Bifásico, ${R.vff} V (duas fases)`:`Trifásico, ${R.vff} V`;
+    const d=(x&&x.dem)||demCat(c);g('deminfo').textContent=((c.dem||'auto')==='auto'?'Automático: ':'')+`${d} · ${DEMC[d]?DEMC[d].l:''}`;
+    g('cvbox').style.display=(d==='g'||d==='i')?'':'none';
+    ph(bg.querySelector('[data-f="dj"]'),x,true);ph(bg.querySelector('[data-f="cabo"]'),x,false);
+    let dri='Sem DR neste circuito.';
+    if(pc&&pc.grp){const it=((PR.q[c.quadroId]||{}).items||[]).find(i=>i.tag===pc.grp);dri=`Ligado ao ${pc.grp}${it?': '+String(it.disp).replace(/^Interruptor /,'')+' '+it.spec:''}`}
+    g('drinfo').textContent=dri;
+    g('res').innerHTML=res(x);g('msgs').innerHTML=msgs(x);
+  }else{
+    const k=qById(sheetSt.id);if(!k){closeSheet(2);return}const x=R.f[k.id];
+    g('titulo').textContent=`Alimentação ${k.nome}`;
+    ph(bg.querySelector('[data-ff="dj"]'),x,true);ph(bg.querySelector('[data-ff="cabo"]'),x,false);
+    if(x&&x.ramal)g('fhint').textContent='Ramal de distribuição: disjuntor da categoria da entrada. Em branco, vale o cabo sugerido.';
+    g('res').innerHTML=res(x);g('msgs').innerHTML=msgs(x);
+  }
+}
+function wireSheet(bg){
+  bg.addEventListener('input',e=>{
+    const t=e.target;if(!cur||!sheetSt)return;
+    if(t.dataset.f!=null){const c=cById(sheetSt.id);if(!c)return;setC(c,t.dataset.f,t.value);touch();refresh();return}
+    if(t.dataset.ff!=null){const k=qById(sheetSt.id);if(!k)return;const f=t.dataset.ff;k.alim[f]=f==='codigo'?t.value:parseNum(t.value);touch();refresh();return}
+  });
+  bg.addEventListener('change',e=>{
+    const t=e.target;if(!cur||!sheetSt)return;
+    if(t.dataset.sh==='fixo'){const c=cById(sheetSt.id);if(!c)return;c.fixo=t.checked;touch();refresh();return}
+    if(t.dataset.sh==='quadro'){const c=cById(sheetSt.id);const q=qById(t.value);if(!c||!q||c.quadroId===q.id)return;
+      snapshot();c.quadroId=q.id;c.ordem=proximaOrdem(cur,q);const ch=normalize(cur);touch();renderEditor(true);openSheet('c',c.id);
+      toast(`Circuito ${c.codigo} movido para ${q.nome}.`+(ch?' Fases ajustadas ao novo quadro.':''),true);}
+  });
+  bg.addEventListener('click',e=>{
+    const b=e.target.closest('[data-sv]');if(!b||!sheetSt)return;const c=cById(sheetSt.id);if(!c)return;
+    if(b.dataset.sv==='tipo'){setC(c,'tipo',b.dataset.v);touch();refresh();return}
+    if(b.dataset.sv==='fase'){if(c.fases===b.dataset.v)return;setC(c,'fases',b.dataset.v);touch();refresh();return}
+  });
+  bg.addEventListener('mousedown',e=>{if(e.target===bg)closeSheet(1)});
+}
+/* menu de ações do celular */
+function closeMenu(user){const m=document.getElementById('amenu');if(!m)return;m.remove();if(user)ovPop()}
+function openMenu(){
+  if(!cur)return;const had=!!document.getElementById('amenu');closeMenu(0);
+  const bg=document.createElement('div');bg.id='amenu';bg.className='csheet-bg';
+  const it=(a,ic,t,sub,q)=>`<button class="mi" data-act="${a}"${q?` data-q="${q}"`:''}>${ic}<span>${t}${sub?`<small>${sub}</small>`:''}</span></button>`;
+  bg.innerHTML=`<div class="amenu" role="menu" aria-label="Ações do serviço"><div class="handle"></div>
+    ${it('memorial',I.doc,'Memorial em PDF','Cálculo, materiais e diagramas')}
+    ${it('memword',I.download,'Memorial em Word')}
+    ${it('print',I.print,'Imprimir quadro de cargas')}
+    ${it('csv',I.download,'Baixar planilha','CSV para Excel')}
+    <div class="msep"></div>
+    ${it('balall',I.scale,'Balancear fases','Todos os quadros')}
+    ${it('syncpanel',I.sync,'Sincronizar',esc(SYNC_TXT[syncSt]||''))}
+    ${it('dados',I.edit,'Dados do serviço','Nome, cliente, tensão e critérios')}
+    ${it('addq',I.plus,'Novo quadro','Alimentado pelo quadro medidor',rootOf(cur).id)}
+  </div>`;
+  document.body.appendChild(bg);bg.addEventListener('mousedown',e=>{if(e.target===bg)closeMenu(1)});
+  if(!had)ovPush();
+}
+function quadroVisivel(){
+  const arts=[...app.querySelectorAll('article.qc')];if(!arts.length)return null;let a=arts[0];
+  arts.forEach(x=>{if(x.getBoundingClientRect().top<window.innerHeight*0.45)a=x});
+  let q=qById(a.dataset.qid);const root=rootOf(cur);
+  if(q===root&&!cur.circuitos.some(c=>c.quadroId===root.id)){const k=kidsOf(cur,root.id).sort(byF)[0];if(k)q=k}
+  return q;
+}
+document.addEventListener('keydown',e=>{if(e.key!=='Escape'||document.getElementById('modal'))return;if(document.getElementById('amenu'))closeMenu(1);else if(document.getElementById('csheet'))closeSheet(1)});
+if(MQ.addEventListener)MQ.addEventListener('change',()=>{if(!isMob()){closeMenu(1);closeSheet(2)}if(cur)renderEditor(true)});
+
 /* ---------- ações ---------- */
 function setC(c,f,v){if(['w','fp','comp','dj','cabo','qtd','cv'].includes(f))c[f]=parseNum(v,f==='w');else{c[f]=v;if(f==='fases')delete c.fases0}}
 function addCircuit(q){
@@ -1946,6 +2259,7 @@ function addCircuit(q){
   const light=set.reduce((a,l)=>p[l]<p[a]?l:a,set[0]);
   const c=novoCircuito(q,{codigo:nextCode(cur,q),fases:light,ordem:proximaOrdem(cur,q)});
   cur.circuitos.push(c);touch();renderEditor(true);
+  if(isMob()){openSheet('c',c.id);const d=document.querySelector('#csheet [data-f="desc"]');if(d)d.focus();return}
   const row=app.querySelector(`[data-cid="${c.id}"]`);if(row){row.scrollIntoView({block:'center'});const d=row.querySelector('[data-f="desc"]');if(d)d.focus()}
 }
 function addQuadro(p){
@@ -1953,7 +2267,7 @@ function addQuadro(p){
   const pref='ABCDEFGHIJKLNOPQUVWXYZ'.split('').find(l=>!used.has(l))||'';
   const n=cur.quadros.filter(x=>x.tipo!=='medidor').length+1;
   const q={id:uid(),tipo:'distribuicao',nome:'QD'+n,descricao:'Quadro de distribuição',prefixo:pref,pai:p.id,fases:p.fases,fd:1,alim:{codigo:nextCode(cur,p),dj:'',cabo:'',comp:'',ordem:proximaOrdem(cur,p)}};
-  cur.quadros.push(q);touch();renderEditor(true);
+  cur.quadros.push(q);if(isMob())ui.qOpen[q.id]=true;touch();renderEditor(true);
   const el=document.getElementById('q-'+q.id);if(el){el.scrollIntoView({behavior:'smooth',block:'start'});const i=el.querySelector('[data-qf="nome"]');if(i)i.focus({preventScroll:true})}
 }
 function delQuadro(q){
@@ -2105,7 +2419,16 @@ app.addEventListener('toggle',e=>{if(e.target.matches&&e.target.matches('[data-d
 document.addEventListener('click',e=>{
   const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act;
   if(a!=='open')e.stopPropagation();
+  if(b.closest('#amenu'))closeMenu(1);
+  if(b.closest('#csheet')&&(a==='delc'||a==='goto'))closeSheet(2);
   switch(a){
+    case 'nop':break;
+    case 'msheet':openSheet(b.dataset.cid?'c':'f',b.dataset.cid||b.dataset.fq);break;
+    case 'closesheet':closeSheet(1);break;
+    case 'menu':openMenu();break;
+    case 'fab':{const q=quadroVisivel();if(q)addCircuit(q);break;}
+    case 'mqedit':{const id=b.dataset.q;ui.qOpen=ui.qOpen||{};ui.qOpen[id]=!ui.qOpen[id];const ar=document.getElementById('q-'+id);if(ar)ar.classList.toggle('qopen',ui.qOpen[id]);b.textContent=ui.qOpen[id]?'Fechar':'Editar';break;}
+    case 'dados':{ui.dadosOpen=true;const d=app.querySelector('[data-dados]');if(d){d.open=true;setTimeout(()=>window.scrollTo({top:0,behavior:'smooth'}),40)}break;}
     case 'home':location.hash='#/';break;
     case 'open':location.hash='#/s/'+b.dataset.id;break;
     case 'newsrv':{const s=criarServico({nome:'Novo serviço'});const q0=rootOf(s);
@@ -2148,7 +2471,7 @@ document.addEventListener('click',e=>{
       if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(GAS_CODE).then(ok).catch(fb);else fb();
       break;}
     case 'view':{ui.view=b.dataset.v;renderEditor(true);const sb=app.querySelector('.segbar');if(sb){const th=document.querySelector('.top').offsetHeight;const y=sb.getBoundingClientRect().top+window.scrollY-th;if(window.scrollY>y)window.scrollTo(0,y)}break;}
-    case 'gocirc':{const id=b.dataset.cid;if(ui.view!=='cargas'){ui.view='cargas';renderEditor(false)}const row=app.querySelector(`tr[data-cid="${id}"]`);if(row){row.scrollIntoView({behavior:'smooth',block:'center'});row.classList.remove('flash');void row.offsetWidth;row.classList.add('flash');const d=row.querySelector('[data-f="desc"]');if(d)d.focus({preventScroll:true})}break;}
+    case 'gocirc':{const id=b.dataset.cid;if(isMob()){if(ui.view!=='cargas'){ui.view='cargas';renderEditor(false)}openSheet('c',id);break}if(ui.view!=='cargas'){ui.view='cargas';renderEditor(false)}const row=app.querySelector(`tr[data-cid="${id}"]`);if(row){row.scrollIntoView({behavior:'smooth',block:'center'});row.classList.remove('flash');void row.offsetWidth;row.classList.add('flash');const d=row.querySelector('[data-f="desc"]');if(d)d.focus({preventScroll:true})}break;}
     case 'svg':{const k=b.dataset.k;const box=k==='dgi'?app.querySelector('[data-dgi]'):app.querySelector(`[data-dg="${k}"]`);const sv=box&&box.querySelector('svg');if(!sv)break;
       const cl=sv.cloneNode(true);cl.removeAttribute('style');cl.removeAttribute('class');cl.querySelectorAll('[data-act]').forEach(n=>{n.removeAttribute('data-act');n.removeAttribute('data-q');n.removeAttribute('data-cid');n.removeAttribute('class')});
       const qn=k==='dgi'?'Interligacao':'Unifilar_'+((qById(k)||{}).nome||'');download(`${fileName(qn)}_${fileName(cur.nome)}.svg`,'<?xml version="1.0" encoding="UTF-8"?>\n'+cl.outerHTML,'image/svg+xml');toast('Diagrama baixado.');break;}
@@ -2163,18 +2486,18 @@ document.addEventListener('click',e=>{
   }
 });
 let drag=null;
-function linhasTb(tb){return [...tb.querySelectorAll('tr[data-cid],tr[data-fq]')]}
+function linhasTb(tb){return [...tb.children].filter(r=>r.dataset.cid||r.dataset.fq)}
 function gravarOrdem(tb){linhasTb(tb).forEach((r,j)=>{if(r.dataset.cid){const c=cById(r.dataset.cid);if(c)c.ordem=j}else{const k=qById(r.dataset.fq);if(k)k.alim.ordem=j}})}
 function moverPara(x,y){
   if(!drag)return;
-  const el=document.elementFromPoint(x,y);const tb=el&&el.closest('tbody[data-tb]');
-  app.querySelectorAll('tbody.drop-target').forEach(t=>{if(t!==tb)t.classList.remove('drop-target')});
+  const el=document.elementFromPoint(x,y);const tb=el&&el.closest('[data-tb]');
+  app.querySelectorAll('.drop-target').forEach(t=>{if(t!==tb)t.classList.remove('drop-target')});
   if(!tb||(drag.isF&&tb!==drag.from))return;
   const rows=linhasTb(tb).filter(r=>r!==drag.tr);let alvo=null;
   for(const r of rows){const bb=r.getBoundingClientRect();if(y<bb.top+bb.height/2){alvo=r;break}}
   if(alvo){if(alvo.previousElementSibling!==drag.tr||drag.tr.parentElement!==tb)tb.insertBefore(drag.tr,alvo)}
   else if(tb.lastElementChild!==drag.tr)tb.appendChild(drag.tr);
-  const vazio=tb.querySelector('tr.empty-row');if(vazio)vazio.style.display='none';
+  const vazio=tb.querySelector('.empty-row');if(vazio)vazio.style.display='none';
   tb.classList.toggle('drop-target',tb!==drag.from);
 }
 function rolarArrastando(){
@@ -2186,7 +2509,7 @@ function rolarArrastando(){
 }
 app.addEventListener('pointerdown',e=>{
   const g=e.target.closest('[data-grip]');if(!g||(e.pointerType==='mouse'&&e.button!==0))return;
-  const tr=g.closest('tr');if(!tr)return;e.preventDefault();
+  const tr=g.closest('tr,.mrow');if(!tr)return;e.preventDefault();
   drag={tr,g,from:tr.parentElement,idx0:linhasTb(tr.parentElement).indexOf(tr),isF:!!tr.dataset.fq,id:tr.dataset.cid||tr.dataset.fq,x:e.clientX,y:e.clientY,y0:e.clientY,x0:e.clientX,started:false,pid:e.pointerId,raf:0};
   try{g.setPointerCapture(e.pointerId)}catch(er){}
 });
@@ -2201,7 +2524,7 @@ document.addEventListener('pointermove',e=>{
 },{passive:false});
 function fimArraste(cancelou){
   if(!drag)return;const d=drag;drag=null;cancelAnimationFrame(d.raf);
-  document.body.classList.remove('dragging');app.querySelectorAll('tbody.drop-target').forEach(t=>t.classList.remove('drop-target'));
+  document.body.classList.remove('dragging');app.querySelectorAll('.drop-target').forEach(t=>t.classList.remove('drop-target'));
   try{d.g.releasePointerCapture(d.pid)}catch(er){}
   if(!d.started)return;
   d.tr.classList.remove('drag-row');
@@ -2212,18 +2535,18 @@ function fimArraste(cancelou){
   if(!d.isF){const c=cById(d.id);if(c&&c.quadroId!==tb.dataset.tb){c.quadroId=tb.dataset.tb;const q=qById(tb.dataset.tb);msg=`Circuito ${c.codigo} movido para ${q?q.nome:'outro quadro'}. Use "Renumerar" se quiser ajustar os códigos.`}}
   gravarOrdem(tb);if(d.from!==tb)gravarOrdem(d.from);
   const ch=normalize(cur);touch();renderEditor(true);
-  const row=app.querySelector(d.isF?`tr[data-fq="${d.id}"]`:`tr[data-cid="${d.id}"]`);if(row){row.classList.add('flash')}
+  const rs=isMob()?'.mrow':'tr';const row=app.querySelector(d.isF?`${rs}[data-fq="${d.id}"]`:`${rs}[data-cid="${d.id}"]`);if(row){row.classList.add('flash')}
   toast(msg+(ch?' Fases ajustadas ao novo quadro.':''),true);
 }
 document.addEventListener('pointerup',e=>{if(drag&&e.pointerId===drag.pid)fimArraste(false)});
 document.addEventListener('pointercancel',e=>{if(drag&&e.pointerId===drag.pid)fimArraste(true)});
 app.addEventListener('keydown',e=>{
   const g=e.target.closest&&e.target.closest('[data-grip]');if(!g||(e.key!=='ArrowUp'&&e.key!=='ArrowDown'))return;
-  e.preventDefault();const tr=g.closest('tr'),tb=tr.parentElement,rows=linhasTb(tb),i=rows.indexOf(tr),j=e.key==='ArrowUp'?i-1:i+1;
+  e.preventDefault();const tr=g.closest('tr,.mrow'),tb=tr.parentElement,rows=linhasTb(tb),i=rows.indexOf(tr),j=e.key==='ArrowUp'?i-1:i+1;
   if(j<0||j>=rows.length)return;
   if(e.key==='ArrowUp')tb.insertBefore(tr,rows[j]);else tb.insertBefore(tr,rows[j].nextElementSibling);
   gravarOrdem(tb);touch();const id=tr.dataset.cid||tr.dataset.fq,isF=!!tr.dataset.fq;renderEditor(true);
-  const nr=app.querySelector(isF?`tr[data-fq="${id}"]`:`tr[data-cid="${id}"]`);const ng=nr&&nr.querySelector('[data-grip]');if(ng)ng.focus({preventScroll:false});
+  const rs=isMob()?'.mrow':'tr';const nr=app.querySelector(isF?`${rs}[data-fq="${id}"]`:`${rs}[data-cid="${id}"]`);const ng=nr&&nr.querySelector('[data-grip]');if(ng)ng.focus({preventScroll:false});
 });
 $('#fileImp').addEventListener('change',e=>{const f=e.target.files&&e.target.files[0];if(f)importBackup(f)});
 window.addEventListener('beforeprint',()=>{if(cur){if(ui.printMode==='memo')buildMemorial();else buildPrint()}});
