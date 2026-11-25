@@ -132,7 +132,7 @@ table.ct{border-collapse:separate;border-spacing:0;width:100%;min-width:1180px;f
 .in.num{text-align:right}
 .in::placeholder{color:#9AA3AD}
 .in.code{width:52px;font-weight:600}
-.in.desc{min-width:130px}
+.in.desc{min-width:98px}
 .in.w{width:66px}.in.fp{width:46px}.in.cm{width:60px}.in.dj{width:58px}.in.cb{width:58px}
 .sel{height:30px;border:1px solid var(--line2);border-radius:6px;background:#fff;font:inherit;font-size:13px;padding:0 4px;color:var(--ink)}
 .fz-wrap{display:flex;align-items:center;gap:2px}
@@ -367,6 +367,9 @@ body.sheet-open{overflow:hidden}
 .cs-fz button.on{border-color:var(--brand-d);background:var(--brand-l);box-shadow:inset 0 0 0 1px var(--brand-d)}
 .cs-fz .mfz i{font-size:12px;line-height:20px;padding:0 6px}
 .cs-hint{font-size:12px;color:var(--ink3);margin-top:6px}
+.cs-pick{display:flex;align-items:center;gap:8px;width:100%;min-height:44px;border:1px solid var(--line2);border-radius:10px;background:#fff;padding:8px 10px 8px 12px;font:inherit;font-size:14px;text-align:left;color:var(--ink);cursor:pointer}
+.cs-pick span{flex:1;min-width:0}
+.cs-pick svg{width:18px;height:18px;color:var(--ink3);flex:none}
 .cs-hint .mfz{vertical-align:-3px}
 .cs-chk{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--ink2);margin-top:10px}
 .cs-chk input{width:20px;height:20px;accent-color:var(--brand);margin:0}
@@ -468,6 +471,27 @@ body.sheet-open{overflow:hidden}
   body.dragging .fab{display:none}
   .toast{bottom:calc(84px + env(safe-area-inset-bottom))}
 }
+
+/* agrupamento e temperatura */
+.agb{font:inherit;font-size:12px;border:1px solid var(--line);background:#fff;border-radius:6px;padding:4px 5px;min-width:36px;white-space:nowrap;cursor:pointer;color:var(--ink3)}
+.agb small{display:block;font-size:10.5px;font-weight:500;line-height:1.1}
+.agb{line-height:1.15}
+.agb:hover{border-color:var(--line2);color:var(--ink)}
+.agb.on{color:var(--brand-d);border-color:#E8B9C0;background:var(--brand-l);font-weight:600}
+.agm-h{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.agm-h h2{font-size:17px;margin:0}
+.agm-list{margin-top:12px;border:1px solid var(--line);border-radius:10px;max-height:46vh;overflow:auto}
+.agm-i{display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid var(--line);cursor:pointer;font-size:14px}
+.agm-i:last-child{border-bottom:0}
+.agm-i:hover{background:#FAFAFB}
+.agm-i input{width:18px;height:18px;accent-color:var(--brand);flex:none;margin:0}
+.agm-i b{width:40px;flex:none}
+.agm-d{flex:1;min-width:0;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tag.lv{background:#E8F3EC;color:#1A7F37;flex:none}
+.agm-res{margin-top:10px;font-size:13px;color:var(--ink2)}
+.agm-res b{color:var(--ink)}
+@media (max-width:760px){.agm-i{padding:12px}.modal.agm{padding:16px}}
+
 </style>
 </head>
 <body>
@@ -567,6 +591,26 @@ const secFase=t=>{const m=String(t||'').match(/^(?:\d+x)?(\d+(?:[.,]\d+)?)/);ret
 const terraDe=t=>{const p=String(t||'').split('/');return p.length>=3?parseFloat(p[2]):null};
 const isoLbl=k=>k==='PVC'?'PVC 70 °C':'XLPE/HEPR 90 °C';
 const tensLbl=s=>s.tensao==='220/380'?'380/220 V':'220/127 V';
+/* fatores de correção por circuito (NBR 5410, Tabela 40 e Tabela 42) */
+const FCT_T={PVC:{10:1.22,15:1.17,20:1.12,25:1.06,30:1,35:0.94,40:0.87,45:0.79,50:0.71,55:0.61,60:0.5},XLPE:{10:1.15,15:1.12,20:1.08,25:1.04,30:1,35:0.96,40:0.91,45:0.87,50:0.82,55:0.76,60:0.71}};
+const TEMPS=[20,25,30,35,40,45,50,55,60];
+function fctDe(t,iso){const v=FCT_T[iso==='XLPE'?'XLPE':'PVC'][Math.round(t)];return v!=null?v:1}
+function fcaDe(n){n=Math.max(1,Math.round(n||1));return n<=8?[1,1,.8,.7,.65,.6,.57,.54,.52][n]:n<=11?.5:n<=15?.45:n<=19?.41:.38}
+function getAgr(m){return m.k==='c'?(m.o.agr||''):((m.o.alim&&m.o.alim.agr)||'')}
+function setAgr(m,v){if(m.k==='c'){if(v)m.o.agr=v;else delete m.o.agr}else if(m.o.alim){if(v)m.o.alim.agr=v;else delete m.o.alim.agr}}
+function homeQ(m){return m.k==='c'?m.o.quadroId:m.o.pai}
+/* agrupamento válido: membros do mesmo quadro (circuitos e alimentadores que saem dele), no mínimo dois */
+function agrLimpa(s){
+  const g={};const add=m=>{const id=getAgr(m);if(id)(g[id]=g[id]||[]).push(m)};
+  s.circuitos.forEach(c=>add({k:'c',o:c}));
+  s.quadros.forEach(q=>{const m={k:'f',o:q};if(!q.pai){if(getAgr(m))setAgr(m,'');return}add(m)});
+  Object.values(g).forEach(ms=>{
+    const cnt={};ms.forEach(m=>{const h=homeQ(m);cnt[h]=(cnt[h]||0)+1});
+    const h=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a])[0];
+    ms.forEach(m=>{if(homeQ(m)!==h)setAgr(m,'')});
+    const ok=ms.filter(m=>homeQ(m)===h);if(ok.length<2)ok.forEach(m=>setAgr(m,''));
+  });
+}
 const I={more:'<svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.4" fill="currentColor" stroke="none"/></svg>',chevr:'<svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>',sync:'<svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.3-4.9L4 8"/><path d="M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14.3 4.9L20 16"/><path d="M20 20v-4h-4"/></svg>',edit:'<svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M14 6l4 4"/></svg>',
  plus:'<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
  trash:'<svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg>',
@@ -966,7 +1010,7 @@ function entrada(s,out,root){
   const p={R:0,S:0,T:0};PH.forEach(l=>p[l]=sp>0?pr[l]/sp*D:0);
   const mx=Math.max(0,...L.map(l=>p[l]));
   const e={w:Dw,va:D,p,ib:mx/vfn,n,cond:n===1?2:3,k:2,v:vfn,fd,met,conc,DM,C:DM.C,D,pInst:pr,cat:null,alertas:[],msgs:[],motores:motores(s)};
-  if(conc!=='coelba'){Object.assign(e,dim(e,2.5,root.alim.dj,root.alim.cabo,'',null,out.fca,out.rho));e.semTab=true;return e}
+  if(conc!=='coelba'){Object.assign(e,dim(e,2.5,root.alim.dj,root.alim.cabo,'',null,fctDe(out.tAmb,'PVC')*out.fx,out.rho));e.semTab=true;return e}
   const q=enquadrar(s,e);
   if(q.err)e.alertas.push({n:'erro',t:q.err});
   if(!q.cat){e.In=pos(root.alim.dj,0)||null;e.cabo=pos(root.alim.cabo,0)||null;return e}
@@ -1021,8 +1065,11 @@ function entradaFim(s,out,e){
   e.msgs=e.alertas.filter(a=>a.n==='erro').map(a=>a.t);
 }
 function calc(s){
-  const {vfn,vff}=tens(s);const fca=pos(s.fca,1),rho=pos(s.rho,0.0178),lc=pos(s.dvCirc,4),lt=pos(s.dvTotal,5);
-  const out={c:{},q:{},f:{},acc:{},part:{},vfn,vff,ent:null,fca,rho,lc,lt,merge:null};
+  const {vfn,vff}=tens(s);agrLimpa(s);const fx=pos(s.fca,1),tAmb=pos(s.tAmb,30),rho=pos(s.rho,0.0178),lc=pos(s.dvCirc,4),lt=pos(s.dvTotal,5);
+  const out={c:{},q:{},f:{},acc:{},part:{},vfn,vff,ent:null,fx,tAmb,agr:{},rho,lc,lt,merge:null};
+  ordemQuadros(s).forEach(q=>{let n=0;itensQuadro(s,q).forEach(m=>{const g=getAgr(m);if(!g)return;if(!out.agr[g])out.agr[g]={lbl:'A'+(++n),q:q.id,cods:[],n:0};out.agr[g].cods.push(m.k==='c'?m.o.codigo:m.o.alim.codigo);out.agr[g].n++})});
+  Object.values(out.agr).forEach(a=>a.fca=fcaDe(a.n));
+  const fcOf=(m,iso)=>{const g=out.agr[getAgr(m)];const tp=pos(m.k==='c'?m.o.temp:m.o.alim.temp,0);const t=tp||tAmb;const fct=fctDe(t,iso),fca=g?g.fca:1;return {fct,fca,temp:t,tempP:!tp,agrL:g?g.lbl:'',nAgr:g?g.n:1,fc:fct*fca*fx}};
   const by={};s.quadros.forEach(q=>by[q.id]=q);
   const root=rootOf(s);
   s.circuitos.forEach(c=>{
@@ -1055,9 +1102,10 @@ function calc(s){
     const x={w:t.w*fd,va:t.va*fd,p,ib:mx/vfn,n,cond:n===1?2:3,k:n===3?Math.sqrt(3):2,v:n===3?vff:vfn,volt:n===1?vfn:`${vfn}/${vff}`};
     if(q.id===out.merge&&e.In&&e.ib>0){
       x.ramal=true;x.iso=s.isoEnt==='PVC'?'PVC':'XLPE';x.ibInst=x.ib;x.ib=e.ib;
-      Object.assign(x,dim(x,2.5,e.In,q.alim.cabo,q.alim.comp,null,fca,rho,izE));
+      const f=fcOf({k:'f',o:q},x.iso);Object.assign(x,f);
+      Object.assign(x,dim(x,2.5,e.In,q.alim.cabo,q.alim.comp,null,f.fc,rho,izE));
       const dj=pos(q.alim.dj,0);if(dj&&dj!==e.In)x.djIgn=dj;
-    }else Object.assign(x,dim(x,2.5,q.alim.dj,q.alim.cabo,q.alim.comp,null,fca,rho));
+    }else{const f=fcOf({k:'f',o:q},'PVC');Object.assign(x,f);Object.assign(x,dim(x,2.5,q.alim.dj,q.alim.cabo,q.alim.comp,null,f.fc,rho))}
     x.pe=peSec(x.cabo);
     out.f[q.id]=x;
   });
@@ -1069,7 +1117,8 @@ function calc(s){
   s.quadros.forEach(q=>{if(out.acc[q.id]==null){out.acc[q.id]=0;out.part[q.id]=true}});
   s.circuitos.forEach(c=>{
     const x=out.c[c.id];const q=by[c.quadroId];if(!q)return;const min=c.tipo==='ILU'?1.5:2.5;
-    Object.assign(x,dim(x,min,c.dj,c.cabo,c.comp,lc,fca,rho));
+    const f=fcOf({k:'c',o:c},'PVC');Object.assign(x,f);
+    Object.assign(x,dim(x,min,c.dj,c.cabo,c.comp,lc,f.fc,rho));
     x.dvt=x.dv!=null?out.acc[q.id]+x.dv:null;x.part=out.part[q.id];x.min=min;x.pe=peSec(x.cabo);x.dem=demCat(c);
     x.msgs=mensagens(x,{min,lc,lt,faseOk:sub(c.fases,q.fases)});
   });
@@ -1406,7 +1455,7 @@ function viewHTML(){
   if(ui.view==='diagramas')return diagHTML();
   if(ui.view==='entrada')return entradaViewHTML();
   if(ui.view==='materiais')return materiaisViewHTML();
-  return ordemQuadros(cur).map(quadroHTML).join('')+`<div class="foot-notes">Critérios: NBR 5410. Condutores de cobre com isolação PVC 70 °C, método de instalação B1, capacidade multiplicada por FCT × FCA. Corrente de projeto: Ib = S/V (F+N), S/V (F+F) e S/(√3 × V) (3F). Disjuntor sugerido: menor padrão com In ≥ Ib. Cabo sugerido: menor seção com Iz ≥ In, respeitando 1,5 mm² para iluminação e 2,5 mm² para força e, quando o comprimento é informado, a queda de tensão máxima do circuito. Queda de tensão sem reatância, com ρ informado. Alimentadores: Ib pela fase mais carregada, com o fator de demanda do quadro; o alimentador que sai direto do padrão de entrada (ramal de distribuição) usa a corrente de demanda da entrada e o disjuntor geral da categoria. Entrada de energia pela Neoenergia DIS-NOR-030 REV 07: carga instalada (6.26), demanda (6.27) e categoria (Anexo I, Tabela 1). A coluna Demanda define a parcela de cada circuito no cálculo da demanda; em Auto, ela é deduzida do tipo e da descrição. Disjuntor e cabo em branco usam a sugestão (em cinza). ΔV tot. com asterisco: valor parcial, falta o comprimento de algum alimentador acima do quadro. Para reorganizar, arraste o circuito pela alça à esquerda do código (também dá para levá-lo a outro quadro); no teclado, use as setas sobre a alça. "Renumerar" refaz os códigos na ordem atual.</div>`;
+  return ordemQuadros(cur).map(quadroHTML).join('')+`<div class="foot-notes">Critérios: NBR 5410. Condutores de cobre com isolação PVC 70 °C, método de instalação B1, capacidade corrigida em cada circuito pelo FCT (temperatura ambiente, Tabela 40) e pelo FCA (agrupamento no mesmo eletroduto, Tabela 42), definidos na coluna Agrup. Corrente de projeto: Ib = S/V (F+N), S/V (F+F) e S/(√3 × V) (3F). Disjuntor sugerido: menor padrão com In ≥ Ib. Cabo sugerido: menor seção com Iz ≥ In, respeitando 1,5 mm² para iluminação e 2,5 mm² para força e, quando o comprimento é informado, a queda de tensão máxima do circuito. Queda de tensão sem reatância, com ρ informado. Alimentadores: Ib pela fase mais carregada, com o fator de demanda do quadro; o alimentador que sai direto do padrão de entrada (ramal de distribuição) usa a corrente de demanda da entrada e o disjuntor geral da categoria. Entrada de energia pela Neoenergia DIS-NOR-030 REV 07: carga instalada (6.26), demanda (6.27) e categoria (Anexo I, Tabela 1). A coluna Demanda define a parcela de cada circuito no cálculo da demanda; em Auto, ela é deduzida do tipo e da descrição. Disjuntor e cabo em branco usam a sugestão (em cinza). ΔV tot. com asterisco: valor parcial, falta o comprimento de algum alimentador acima do quadro. Para reorganizar, arraste o circuito pela alça à esquerda do código (também dá para levá-lo a outro quadro); no teclado, use as setas sobre a alça. "Renumerar" refaz os códigos na ordem atual.</div>`;
 }
 function protHTML(){
   const s=cur,root=rootOf(s);
@@ -1458,7 +1507,7 @@ function dadosHTML(){
       <label class="fl">Sistema<select class="fs" data-sf="sistema">${Object.keys(SIS).map(k=>`<option value="${k}"${k===s.sistema?' selected':''}>${SIS[k].nome}</option>`).join('')}</select></label>
       <label class="fl">Tensão<select class="fs" data-sf="tensao">${tOpts.map(([v,l])=>`<option value="${v}"${v===s.tensao?' selected':''}>${l}</option>`).join('')}</select></label>
       <label class="fl">Curva dos disjuntores<select class="fs" data-sf="curva">${['B','C','D'].map(k=>`<option value="${k}"${k===(s.curva||'C')?' selected':''}>Curva ${k}</option>`).join('')}</select></label>
-      <label class="fl">FCT × FCA<input class="fi" inputmode="decimal" data-sf="fca" value="${fmtIn(s.fca)}"></label>
+      <label class="fl" title="Temperatura padrão para o FCT (NBR 5410, Tabela 40). Cada circuito pode ter a sua">Temperatura ambiente<select class="fs" data-sf="tAmb">${TEMPS.map(t=>`<option value="${t}"${t===pos(s.tAmb,30)?' selected':''}>${t} °C</option>`).join('')}</select></label>${pos(s.fca,1)!==1?`<label class="fl" title="Valor antigo, aplicado a todos os circuitos. Deixe 1 e use o agrupamento e a temperatura de cada circuito">Fator adicional<input class="fi" inputmode="decimal" data-sf="fca" value="${fmtIn(s.fca)}"></label>`:''}
       <label class="fl">ρ cobre (Ω·mm²/m)<input class="fi" inputmode="decimal" data-sf="rho" value="${fmtIn(s.rho)}"></label>
       <label class="fl">ΔV máx. circuito (%)<input class="fi" inputmode="decimal" data-sf="dvCirc" value="${fmtIn(s.dvCirc)}"></label>
       <label class="fl">ΔV máx. total (%)<input class="fi" inputmode="decimal" data-sf="dvTotal" value="${fmtIn(s.dvTotal)}"></label>
@@ -1632,7 +1681,7 @@ function memorialHTML(s,word){
     <li>Distribuição interna: ${nq} quadro${nq===1?'':'s'} (${esc(ordemQuadros(s).map(q=>q.nome).join(', '))}) e ${s.circuitos.length} circuitos, conforme o item 10 e o Anexo A.</li></ul>`;
   h+=H('Premissas e critérios de cálculo')+`<ul>
     <li>Corrente de projeto: Ib = P / (V x FP), com a tensão fase-neutro nos circuitos F+N e a tensão fase-fase nos circuitos F+F; nos circuitos trifásicos, Ib = P / (√3 x V x FP).</li>
-    <li>Condutores dos circuitos internos: cobre, isolação PVC 70 °C, método de referência B1 (condutores em eletroduto embutido em alvenaria), capacidade de condução da NBR 5410 corrigida por FCT x FCA = ${nfx(r.fca,2)}. Ramal de distribuição em ${isoLbl(s.isoEnt==='PVC'?'PVC':'XLPE')}.</li>
+    <li>Condutores dos circuitos internos: cobre, isolação PVC 70 °C, método de referência B1 (condutores em eletroduto embutido em alvenaria), capacidade de condução da NBR 5410 corrigida, circuito a circuito, pelo fator de temperatura ambiente (FCT, Tabela 40) e pelo fator de agrupamento (FCA, Tabela 42), este pelo número de circuitos no mesmo eletroduto no trecho mais desfavorável do percurso. Temperatura ambiente de referência de ${nf(r.tAmb,0)} °C. Os fatores de cada circuito e a composição dos agrupamentos constam do Anexo A.${r.fx!==1?` Fator de correção adicional aplicado a todos os circuitos: ${nfx(r.fx,2)}.`:''} Ramal de distribuição em ${isoLbl(s.isoEnt==='PVC'?'PVC':'XLPE')}.</li>
     <li>Seções mínimas de 1,5 mm² para iluminação e 2,5 mm² para força (NBR 5410, 6.2.6.1). Neutro com a mesma seção das fases; condutor de proteção conforme a Tabela 58 da NBR 5410.</li>
     <li>Coordenação entre condutor e proteção: Ib ≤ In ≤ Iz (NBR 5410, 5.3.4). Com disjuntores conforme a NBR IEC 60898, a corrente convencional de atuação não supera 1,45 x In, o que atende à condição I2 ≤ 1,45 x Iz.</li>
     <li>Queda de tensão: ΔV (%) = k x ρ x L x Ib / (S x V) x 100, com k = 2 nos circuitos F+N e F+F e k = √3 nos trifásicos, ρ = ${nfx(r.rho,4)} Ω·mm²/m, sem reatância. Limites de ${nf(r.lc,1)}% no circuito terminal e ${nf(r.lt,1)}% no total a partir da origem (NBR 5410, 6.2.7).</li>
@@ -1674,17 +1723,17 @@ function memorialHTML(s,word){
     const t=r.q[q.id];const f=r.f[q.id];const p=s.quadros.find(x=>x.id===q.pai);
     const rows=itensQuadro(s,q).map(it=>{
       if(it.k==='c'){const c=it.o,y=r.c[c.id];const hs=y.ib>0;const nF=c.fases.length;
-        return `<tr><td>${esc(c.codigo)}</td><td>${esc(c.desc)}</td><td>${c.tipo}</td><td>${y.dem}</td><td>${c.fases}</td><td class="n">${y.volt}</td><td class="n">${nf(y.w,0)}</td><td class="n">${nfx(pos(c.fp,1),2)}</td><td class="n">${hs?nf(y.va,0):''}</td><td class="n">${hs?nfx(y.ib,1):''}</td><td class="n">${hs&&y.In?y.In:''}</td><td>${hs&&y.cabo?condTxt(nF,y.cabo,nF===1,y.pe):''}</td><td class="n">${hs&&y.iz?nf(y.iz,1):''}</td><td class="n">${nf(num(c.comp),1)}</td><td class="n">${hs&&y.dv!=null?nfx(y.dv,2):''}</td><td class="n">${hs&&y.dvt!=null?nfx(y.dvt,2)+(y.part?'*':''):''}</td><td>${esc(P.c[c.id].grp||'')}</td><td>${hs?(y.msgs&&y.msgs.length?'ver item 12':'OK'):''}</td></tr>`}
+        return `<tr><td>${esc(c.codigo)}</td><td>${esc(c.desc)}</td><td>${c.tipo}</td><td>${y.dem}</td><td>${c.fases}</td><td class="n">${y.volt}</td><td class="n">${nf(y.w,0)}</td><td class="n">${nfx(pos(c.fp,1),2)}</td><td class="n">${hs?nf(y.va,0):''}</td><td class="n">${hs?nfx(y.ib,1):''}</td><td class="n">${hs&&y.In?y.In:''}</td><td>${hs&&y.cabo?condTxt(nF,y.cabo,nF===1,y.pe):''}</td><td class="n">${hs?nfx(y.fct,2):''}</td><td class="n">${hs?nfx(y.fca,2)+(y.agrL?' ('+y.agrL+')':''):''}</td><td class="n">${hs&&y.iz?nf(y.iz,1):''}</td><td class="n">${nf(num(c.comp),1)}</td><td class="n">${hs&&y.dv!=null?nfx(y.dv,2):''}</td><td class="n">${hs&&y.dvt!=null?nfx(y.dvt,2)+(y.part?'*':''):''}</td><td>${esc(P.c[c.id].grp||'')}</td><td>${hs?(y.msgs&&y.msgs.length?'ver item 12':'OK'):''}</td></tr>`}
       const k=it.o,y=r.f[k.id];const hs=y.ib>0;
-      return `<tr class="m-feed"><td>${esc(k.alim.codigo)}</td><td>Alimentação ${esc(k.nome)}${y.ramal?' (ramal de distribuição; Ib pela demanda da entrada)':''}</td><td>QUA</td><td></td><td>${k.fases}</td><td class="n">${y.volt}</td><td class="n">${nf(y.w,0)}</td><td></td><td class="n">${hs?nf(y.va,0):''}</td><td class="n">${hs?nfx(y.ib,1):''}</td><td class="n">${hs&&y.In?y.In:''}</td><td>${hs&&y.cabo?condTxt(k.fases.length,y.cabo,true,y.pe)+(y.ramal?' '+(y.iso==='PVC'?'PVC':'XLPE'):''):''}</td><td class="n">${hs&&y.iz?nf(y.iz,1):''}</td><td class="n">${nf(num(k.alim.comp),1)}</td><td class="n">${hs&&y.dv!=null?nfx(y.dv,2):''}</td><td class="n">${hs&&y.dvt!=null?nfx(y.dvt,2):''}</td><td></td><td>${hs?(y.msgs&&y.msgs.length?'ver item 12':'OK'):''}</td></tr>`;
+      return `<tr class="m-feed"><td>${esc(k.alim.codigo)}</td><td>Alimentação ${esc(k.nome)}${y.ramal?' (ramal de distribuição; Ib pela demanda da entrada)':''}</td><td>QUA</td><td></td><td>${k.fases}</td><td class="n">${y.volt}</td><td class="n">${nf(y.w,0)}</td><td></td><td class="n">${hs?nf(y.va,0):''}</td><td class="n">${hs?nfx(y.ib,1):''}</td><td class="n">${hs&&y.In?y.In:''}</td><td>${hs&&y.cabo?condTxt(k.fases.length,y.cabo,true,y.pe)+(y.ramal?' '+(y.iso==='PVC'?'PVC':'XLPE'):''):''}</td><td class="n">${hs?nfx(y.fct,2):''}</td><td class="n">${hs?nfx(y.fca,2)+(y.agrL?' ('+y.agrL+')':''):''}</td><td class="n">${hs&&y.iz?nf(y.iz,1):''}</td><td class="n">${nf(num(k.alim.comp),1)}</td><td class="n">${hs&&y.dv!=null?nfx(y.dv,2):''}</td><td class="n">${hs&&y.dvt!=null?nfx(y.dvt,2):''}</td><td></td><td>${hs?(y.msgs&&y.msgs.length?'ver item 12':'OK'):''}</td></tr>`;
     }).join('');
     const d=deseq(q,t.p);
     ax+=`<div class="m-q"><h3 class="m-h3">${esc(q.nome)} · ${esc(q.descricao||'')}</h3>
       <p class="small">${q===root?'Quadro de origem, alimentado pelo padrão de entrada':`Alimentado por ${esc(p?p.nome:'?')}, circuito ${esc(q.alim.codigo||'?')}`} · ${q.fases} (${alimLbl(q.fases)})${q===root?'':` · FD no alimentador ${nfx(pos(q.fd,1),2)}`}${f&&f.ib>0?` · Ib ${nfx(f.ib,1)} A · disjuntor ${f.In||'?'} A · ${f.cabo?condTxt(q.fases.length,f.cabo,true,f.pe)+' mm²':'?'}`:''}</p>
-      <table class="pt"><thead><tr><th>Circ.</th><th>Descrição</th><th>Tipo</th><th>Dem.</th><th>Fases</th><th class="n">V</th><th class="n">P (W)</th><th class="n">FP</th><th class="n">S (VA)</th><th class="n">Ib (A)</th><th class="n">In (A)</th><th>Condutores (mm²)</th><th class="n">Iz (A)</th><th class="n">L (m)</th><th class="n">ΔV (%)</th><th class="n">ΔV tot. (%)</th><th>DR</th><th>Verif.</th></tr></thead>
-      <tbody>${rows||'<tr><td colspan="18">Sem circuitos</td></tr>'}</tbody>
-      <tfoot><tr><td colspan="6">Total instalado no quadro</td><td class="n">${nf(t.w,0)}</td><td></td><td class="n">${nf(t.va,0)}</td><td colspan="9"></td></tr></tfoot></table>
-      <p class="small">${q.fases.split('').map(l=>`Fase ${l}: ${nf(t.p[l],0)} VA (${nfx(t.p[l]/vfn,1)} A)`).join(' · ')}${d!=null?` · desequilíbrio de ${nfx(d,1)}%`:''}. Coluna "Dem.": parcela da demanda (item 7).</p></div>`;
+      <table class="pt"><thead><tr><th>Circ.</th><th>Descrição</th><th>Tipo</th><th>Dem.</th><th>Fases</th><th class="n">V</th><th class="n">P (W)</th><th class="n">FP</th><th class="n">S (VA)</th><th class="n">Ib (A)</th><th class="n">In (A)</th><th>Condutores (mm²)</th><th class="n">FCT</th><th class="n">FCA</th><th class="n">Iz (A)</th><th class="n">L (m)</th><th class="n">ΔV (%)</th><th class="n">ΔV tot. (%)</th><th>DR</th><th>Verif.</th></tr></thead>
+      <tbody>${rows||'<tr><td colspan="20">Sem circuitos</td></tr>'}</tbody>
+      <tfoot><tr><td colspan="6">Total instalado no quadro</td><td class="n">${nf(t.w,0)}</td><td></td><td class="n">${nf(t.va,0)}</td><td colspan="11"></td></tr></tfoot></table>
+      <p class="small">${q.fases.split('').map(l=>`Fase ${l}: ${nf(t.p[l],0)} VA (${nfx(t.p[l]/vfn,1)} A)`).join(' · ')}${d!=null?` · desequilíbrio de ${nfx(d,1)}%`:''}. Coluna "Dem.": parcela da demanda (item 7). Iz já corrigido por FCT x FCA.${agrTxt(r,q)}</p></div>`;
   });
   ax+=`<h2 class="m-h m-brk">Anexo B. Dispositivos de proteção por quadro</h2>`;
   ordemQuadros(s).forEach(q=>{const pq=P.q[q.id];
@@ -1749,6 +1798,12 @@ function exportWord(){
   if(!cur)return;
   const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>Memorial ${esc(cur.nome)}</title><!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom><w:DoNotOptimizeForBrowser/></w:WordDocument></xml><![endif]--><style>${WORD_CSS}</style></head><body>${wordify(memorialHTML(cur,true))}</body></html>`;
   download(`Memorial_${fileName(cur.nome)}.doc`,'﻿'+html,'application/msword');toast('Memorial em Word baixado.');
+}
+
+function agrTxt(r,q){
+  const gs=Object.values(r.agr||{}).filter(a=>a.q===q.id);
+  if(!gs.length)return ' Sem agrupamento de circuitos informado neste quadro (FCA 1,00).';
+  return ' Agrupamentos (circuitos no mesmo eletroduto): '+gs.map(a=>`${a.lbl} = ${a.cods.map(esc).join(', ')}, ${a.n} circuitos, FCA ${nfx(a.fca,2)}`).join('; ')+'.';
 }
 /* ---------- lista de materiais ---------- */
 const DEXT={PVC:{1.5:3.0,2.5:3.6,4:4.2,6:4.8,10:6.1,16:7.3,25:9.1,35:10.4,50:12.4,70:14.4,95:16.4,120:18.2},
@@ -1882,9 +1937,9 @@ function quadroHTML(q){
       <div class="q-feed" data-qfeed="${q.id}"></div>
     </div>
     <div class="tw"><table class="ct">
-      <thead><tr><th class="sticky">Circ.</th><th>Tipo</th><th>Descrição</th><th title="Parcela da demanda (DIS-NOR-030, 6.27). Auto deduz pelo tipo e pela descrição">Demanda</th><th class="n" title="Número de aparelhos no circuito">Nº</th><th class="n">Pot. (W)</th><th class="n">FP</th><th>Fases</th><th class="n">Comp. (m)</th><th class="n">S (VA)</th><th class="n">Ib (A)</th><th class="n">Disj. (A)</th><th class="n">Cabo (mm²)</th><th title="Auto: tomadas com DR 30 mA, iluminação sem DR, chuveiro e cargas de 32 A ou mais com DR exclusivo, carregador de veículo com DR tipo A">DR</th><th class="n">ΔV (%)</th><th class="n">ΔV tot. (%)</th><th></th><th></th></tr></thead>
-      <tbody data-tb="${q.id}">${it.length?it.map(x=>x.k==='c'?rowC(x.o,q):rowF(x.o)).join(''):`<tr class="empty-row"><td colspan="18" style="padding:16px;color:var(--ink3)">Nenhum circuito. Use "Adicionar circuito" ou arraste um circuito de outro quadro para cá.</td></tr>`}</tbody>
-      <tfoot><tr><td class="sticky" colspan="5">Total instalado no quadro</td><td class="n" data-qtw="${q.id}"></td><td></td><td></td><td></td><td class="n" data-qtva="${q.id}"></td><td colspan="8"></td></tr></tfoot>
+      <thead><tr><th class="sticky">Circ.</th><th>Tipo</th><th>Descrição</th><th title="Parcela da demanda (DIS-NOR-030, 6.27). Auto deduz pelo tipo e pela descrição">Demanda</th><th class="n" title="Número de aparelhos no circuito">Nº</th><th class="n">Pot. (W)</th><th class="n">FP</th><th>Fases</th><th class="n">Comp. (m)</th><th class="n">S (VA)</th><th class="n">Ib (A)</th><th class="n">Disj. (A)</th><th class="n">Cabo (mm²)</th><th title="Agrupamento (FCA, NBR 5410 Tabela 42) e temperatura ambiente (FCT, Tabela 40). Clique na célula para definir">Agrup.</th><th title="Auto: tomadas com DR 30 mA, iluminação sem DR, chuveiro e cargas de 32 A ou mais com DR exclusivo, carregador de veículo com DR tipo A">DR</th><th class="n">ΔV (%)</th><th class="n">ΔV tot. (%)</th><th></th><th></th></tr></thead>
+      <tbody data-tb="${q.id}">${it.length?it.map(x=>x.k==='c'?rowC(x.o,q):rowF(x.o)).join(''):`<tr class="empty-row"><td colspan="19" style="padding:16px;color:var(--ink3)">Nenhum circuito. Use "Adicionar circuito" ou arraste um circuito de outro quadro para cá.</td></tr>`}</tbody>
+      <tfoot><tr><td class="sticky" colspan="5">Total instalado no quadro</td><td class="n" data-qtw="${q.id}"></td><td></td><td></td><td></td><td class="n" data-qtva="${q.id}"></td><td colspan="9"></td></tr></tfoot>
     </table></div>
     ${mlistHTML(q,it)}
     <div class="q-foot">
@@ -1915,6 +1970,7 @@ function rowC(c,q){
     <td class="n" data-k="va"></td><td class="n" data-k="ib"></td>
     <td><input class="in num dj" data-f="dj" inputmode="numeric" value="${fmtIn(c.dj)}"></td>
     <td><input class="in num cb" data-f="cabo" inputmode="decimal" value="${fmtIn(c.cabo)}"></td>
+    <td><button type="button" class="agb" data-act="agr" data-k="agr">-</button></td>
     <td><div class="drc"><select class="sel" data-f="dr">${DROPT.map(([v,l])=>`<option value="${v}"${v===(c.dr||'auto')?' selected':''}>${l}</option>`).join('')}</select><span class="drlbl" data-k="drl"></span></div></td>
     <td class="n" data-k="dv"></td><td class="n" data-k="dvt"></td>
     <td class="st" data-k="st"></td>
@@ -1933,6 +1989,7 @@ function rowF(k){
     <td class="n" data-k="va"></td><td class="n" data-k="ib"></td>
     <td><input class="in num dj" data-ff="dj" inputmode="numeric" value="${fmtIn(k.alim.dj)}"></td>
     <td><input class="in num cb" data-ff="cabo" inputmode="decimal" value="${fmtIn(k.alim.cabo)}"></td>
+    <td><button type="button" class="agb" data-act="agr" data-k="agr">-</button></td>
     <td></td>
     <td class="n" data-k="dv"></td><td class="n" data-k="dvt"></td>
     <td class="st" data-k="st"></td><td></td>
@@ -1949,6 +2006,7 @@ function paintRow(tr,x,isF){
   if(dj)dj.placeholder=has?(x.sugDj?String(x.sugDj):'>200'):'';
   if(cb)cb.placeholder=has?(x.sugCabo?nf(x.sugCabo,1):'>120'):'';
   if(cb)cb.title=has&&x.porDv?'Seção aumentada pela queda de tensão':'';
+  const ab=tr.querySelector('[data-k="agr"]');if(ab){const a=agrCelula(x);ab.innerHTML=esc(a.t)+(a.t2?'<small>'+esc(a.t2)+'</small>':'');ab.title=(a.ti?a.ti+'. ':'')+'Clique para definir o agrupamento e a temperatura.';ab.classList.toggle('on',!!(x&&(x.agrL||x.tempP===false)))}
   const st=tr.querySelector('[data-k="st"]');
   const ms=x&&x.msgs?x.msgs:[];
   if(st)st.innerHTML=ms.length?`<span class="bad" title="${esc(ms.join('\n'))}">${I.alert}</span>`:(has?`<span class="ok" title="Ok">${I.check}</span>`:'');
@@ -2034,6 +2092,80 @@ function treeHTML(){
   return `<ul class="tree">${node(root)}</ul>`;
 }
 
+/* ---------- agrupamento (FCA) e temperatura (FCT) por circuito ---------- */
+function agrMembroDe(tipo,id){return tipo==='c'?{k:'c',o:cById(id)}:{k:'f',o:qById(id)}}
+const agrCod=m=>m.k==='c'?m.o.codigo:m.o.alim.codigo;
+function agrCelula(x){
+  if(!x||x.fct==null)return {t:'-',ti:''};
+  const g=x.agrL?`${x.agrL} ${nfx(x.fca,2)}`:'';const tp=x.tempP?'':`${x.temp} °C`;
+  return {t:g||tp||'-',t2:g&&tp?tp:'',
+    ti:(x.agrL?`Agrupamento ${x.agrL}: ${x.nAgr} circuitos no mesmo eletroduto, FCA ${nfx(x.fca,2)}`:'Sem agrupamento, FCA 1,00')+`. Temperatura ${x.temp} °C, FCT ${nfx(x.fct,2)}`+(x.iz?`. Iz corrigido ${nf(x.iz,1)} A`:'')};
+}
+function agrResumo(x,proprio){
+  if(!x||x.fct==null)return '';
+  const a=x.agrL&&R.agr?Object.values(R.agr).find(g=>g.lbl===x.agrL&&g.cods.includes(proprio)):null;
+  const outros=a?a.cods.filter(c=>c!==proprio):[];
+  return (x.agrL?`${x.agrL} com ${outros.join(', ')} · FCA ${nfx(x.fca,2)}`:'Sozinho no eletroduto · FCA 1,00')+` · ${x.temp} °C, FCT ${nfx(x.fct,2)}`;
+}
+let agrSt=null;
+function agrModal(tipo,id){
+  if(!cur||!R)return;const me=agrMembroDe(tipo,id);if(!me.o)return;closeModal();
+  const q=qById(homeQ(me));if(!q)return;const g0=getAgr(me);
+  const itens=itensQuadro(cur,q).filter(m=>!(m.k===me.k&&m.o.id===me.o.id));
+  agrSt={tipo,id,q:q.id,junta:[]};
+  const desc=m=>m.k==='c'?(m.o.desc||''):'Alimentação '+m.o.nome;
+  const temp=pos(me.k==='c'?me.o.temp:me.o.alim.temp,0);
+  const bg=document.createElement('div');bg.className='modal-bg';bg.id='modal';
+  bg.innerHTML=`<div class="modal agm" role="dialog" aria-modal="true" aria-labelledby="agt">
+    <div class="agm-h"><h2 id="agt">Agrupamento e temperatura · ${esc(agrCod(me))}</h2><button class="icon-btn" data-act="closemodal" aria-label="Fechar">${I.x}</button></div>
+    <p class="muted small" style="margin:6px 0 0">Marque os circuitos que passam no mesmo eletroduto que o ${esc(agrCod(me))} no trecho mais carregado do percurso, normalmente a saída do ${esc(q.nome)}. Os marcados ficam no mesmo agrupamento e todos recebem o mesmo FCA.</p>
+    <div class="agm-list">${itens.length?itens.map(m=>{
+      const gid=getAgr(m),x=m.k==='c'?R.c[m.o.id]:R.f[m.o.id];const outro=gid&&gid!==g0?R.agr[gid]:null;const leve=x&&x.ib>0&&x.iz&&x.ib<=0.3*x.iz;
+      return `<label class="agm-i"><input type="checkbox" data-am="${m.k}:${m.o.id}" data-g="${gid}"${g0&&gid===g0?' checked':''}><b>${esc(agrCod(m))}</b><span class="agm-d">${esc(desc(m))}</span>${outro?`<span class="tag" title="Já está no agrupamento ${outro.lbl}: ${esc(outro.cods.join(', '))}">${outro.lbl}</span>`:''}${leve?'<span class="tag lv" title="Corrente de até 30% da capacidade já corrigida: a NBR 5410 permite deixar fora da contagem">até 30%</span>':''}</label>`}).join(''):'<p class="muted small">Não há outros circuitos neste quadro.</p>'}</div>
+    <div class="agm-res" data-agres></div>
+    <label class="fl" style="margin-top:14px">Temperatura ambiente no percurso<select class="fs" data-agt>${['',...TEMPS].map(t=>`<option value="${t}"${String(t)===String(temp||'')?' selected':''}>${t===''?`Padrão do serviço (${nf(R.tAmb,0)} °C)`:t+' °C'}</option>`).join('')}</select></label>
+    <div class="agm-res" data-agfct></div>
+    <div class="row"><button class="btn primary" data-act="agrok">Aplicar</button><button class="btn" data-act="closemodal">Cancelar</button></div>
+  </div>`;
+  document.body.appendChild(bg);
+  bg.addEventListener('change',agrModalChange);
+  bg.addEventListener('mousedown',e=>{if(e.target===bg)closeModal()});
+  agrModalPinta();
+}
+function agrModalChange(e){
+  const t=e.target,bg=document.getElementById('modal');if(!bg||!agrSt)return;
+  if(t.dataset.am!=null&&t.checked&&t.dataset.g){
+    const g0=getAgr(agrMembroDe(agrSt.tipo,agrSt.id));
+    if(t.dataset.g!==g0){bg.querySelectorAll(`[data-am][data-g="${t.dataset.g}"]`).forEach(i=>i.checked=true);const a=R.agr[t.dataset.g];if(a&&!agrSt.junta.includes(a))agrSt.junta.push(a)}
+  }
+  agrModalPinta();
+}
+function agrModalPinta(){
+  const bg=document.getElementById('modal');if(!bg||!agrSt)return;
+  const me=agrMembroDe(agrSt.tipo,agrSt.id);if(!me.o)return;
+  const n=1+bg.querySelectorAll('[data-am]:checked').length;
+  bg.querySelector('[data-agres]').innerHTML=(n>1?`<b>${n} circuitos no agrupamento</b> · FCA ${nfx(fcaDe(n),2)} (NBR 5410, Tabela 42)`:'<b>Sozinho no eletroduto</b> · FCA 1,00')
+    +(agrSt.junta.length?`<div class="small" style="margin-top:4px">${agrSt.junta.map(a=>`${esc(a.cods.join(', '))} já estavam juntos no ${a.lbl} e entraram juntos.`).join(' ')} Desmarque o que não passar neste trecho.</div>`:'');
+  const x=me.k==='c'?R.c[me.o.id]:R.f[me.o.id];const iso=me.k==='f'&&x&&x.iso==='XLPE'?'XLPE':'PVC';
+  const t=pos(bg.querySelector('[data-agt]').value,0)||R.tAmb;
+  bg.querySelector('[data-agfct]').textContent=`FCT ${nfx(fctDe(t,iso),2)} (NBR 5410, Tabela 40, isolação ${iso==='XLPE'?'XLPE/EPR 90 °C':'PVC 70 °C'})`;
+}
+function agrAplica(){
+  const bg=document.getElementById('modal');if(!bg||!agrSt||!cur)return;
+  const me=agrMembroDe(agrSt.tipo,agrSt.id);if(!me.o){closeModal();return}
+  snapshot();
+  const sel=[...bg.querySelectorAll('[data-am]:checked')].map(i=>{const [k,id]=i.dataset.am.split(':');return agrMembroDe(k,id)}).filter(m=>m.o);
+  const igual=(a,b)=>a.k===b.k&&a.o.id===b.o.id;
+  const g0=getAgr(me);
+  if(g0)itensQuadro(cur,qById(agrSt.q)).forEach(m=>{if(getAgr(m)===g0&&!igual(m,me)&&!sel.some(x=>igual(x,m)))setAgr(m,'')});
+  if(sel.length){const g=g0||uid();setAgr(me,g);sel.forEach(m=>setAgr(m,g))}else setAgr(me,'');
+  const tv=pos(bg.querySelector('[data-agt]').value,0);const alvo=me.k==='c'?me.o:me.o.alim;
+  if(tv)alvo.temp=tv;else delete alvo.temp;
+  closeModal();agrSt=null;touch();refresh();
+  const x=me.k==='c'?R.c[me.o.id]:R.f[me.o.id];
+  toast(x&&x.agrL?`${agrCod(me)} no agrupamento ${x.agrL} (${x.nAgr} circuitos, FCA ${nfx(x.fca,2)}).`:`${agrCod(me)} sem agrupamento.`,true);
+}
+
 /* ---------- celular: lista linear, tela de edição e menu ---------- */
 const MQ=window.matchMedia('(max-width:760px)');
 const isMob=()=>MQ.matches;
@@ -2079,7 +2211,7 @@ function paintMobile(){
     const c=cById(r.dataset.cid),x=R.c[r.dataset.cid];if(!c||!x)return;const pc=PR&&PR.c[c.id];const has=x.ib>0;
     r.querySelector('[data-m="cod"]').textContent=c.codigo||'?';
     const d=r.querySelector('[data-m="desc"]');d.textContent=c.desc||'Sem descrição';d.classList.toggle('vazio',!c.desc);
-    r.querySelector('[data-m="sub"]').innerHTML=has?`<span>${nf(x.w,0)} W</span>${fzChips(c.fases)}<span>${x.In?nf(x.In,0):'?'} A · ${x.cabo?nf(x.cabo,1):'?'} mm²${pc&&pc.grp?' · '+esc(pc.grp):''}</span>`:`${fzChips(c.fases)}<span class="vazio">${c.tipo==='RES'?'reserva':'sem potência'}</span>`;
+    r.querySelector('[data-m="sub"]').innerHTML=has?`<span>${nf(x.w,0)} W</span>${fzChips(c.fases)}<span>${x.In?nf(x.In,0):'?'} A · ${x.cabo?nf(x.cabo,1):'?'} mm²${pc&&pc.grp?' · '+esc(pc.grp):''}${x.agrL?' · '+x.agrL:''}</span>`:`${fzChips(c.fases)}<span class="vazio">${c.tipo==='RES'?'reserva':'sem potência'}</span>`;
     const m=x.msgs||[];r.querySelector('[data-m="st"]').className='mst'+(m.length?' bad':has?' ok':'');
   });
   app.querySelectorAll('.mrow[data-fq]').forEach(r=>{
@@ -2146,6 +2278,7 @@ function sheetHTML(){
           <div class="cs-two"><label class="cs-f"><span>Disjuntor (A)</span><input class="fi" inputmode="numeric" data-f="dj" value="${fmtIn(c.dj)}"></label>
             <label class="cs-f"><span>Cabo (mm²)</span><input class="fi" inputmode="decimal" data-f="cabo" value="${fmtIn(c.cabo)}"></label></div>
           <div class="cs-hint">Em branco, vale o valor sugerido (em cinza).</div>
+          <div class="cs-f"><span>Agrupamento e temperatura</span><button type="button" class="cs-pick" data-act="agr"><span data-sh="agr"></span>${I.chevr}</button></div>
           <label class="cs-f"><span>DR</span><select class="fs" data-f="dr">${opt(DROPT,c.dr||'auto')}</select></label>
           <div class="cs-hint" data-sh="drinfo"></div>
         </div>
@@ -2168,6 +2301,7 @@ function sheetHTML(){
         <div class="cs-two"><label class="cs-f"><span>Disjuntor (A)</span><input class="fi" inputmode="numeric" data-ff="dj" value="${fmtIn(k.alim.dj)}"></label>
           <label class="cs-f"><span>Cabo (mm²)</span><input class="fi" inputmode="decimal" data-ff="cabo" value="${fmtIn(k.alim.cabo)}"></label></div>
         <div class="cs-hint" data-sh="fhint">Em branco, vale o valor sugerido (em cinza).</div>
+        <div class="cs-f"><span>Agrupamento e temperatura</span><button type="button" class="cs-pick" data-act="agr"><span data-sh="agr"></span>${I.chevr}</button></div>
       </div>
       <div class="cs-sec">Resultado</div>
       <div class="cs-card"><div class="cs-res" data-sh="res"></div><div class="cs-msgs" data-sh="msgs"></div></div>
@@ -2177,7 +2311,7 @@ function sheetHTML(){
 function paintSheet(){
   const bg=document.getElementById('csheet');if(!bg||!sheetSt||!cur||!R)return;
   const g=n=>bg.querySelector(`[data-sh="${n}"]`);
-  const res=x=>{const has=x&&x.ib>0;return has?`<div><span>S</span><b>${nf(x.va,0)} VA</b></div><div><span>Ib</span><b>${nf(x.ib,1)} A</b></div><div><span>ΔV no circuito</span><b>${x.dv!=null?nfx(x.dv,2)+'%':'-'}</b>${x.dv==null?'<small>informe o comprimento</small>':''}</div><div><span>ΔV total</span><b>${x.dvt!=null?nfx(x.dvt,2)+'%'+(x.part?'*':''):'-'}</b></div>`:'<p class="cs-hint" style="grid-column:1/-1;margin:0">Informe a potência para calcular.</p>'};
+  const res=x=>{const has=x&&x.ib>0;return has?`<div><span>S</span><b>${nf(x.va,0)} VA</b></div><div><span>Ib</span><b>${nf(x.ib,1)} A</b></div><div><span>ΔV no circuito</span><b>${x.dv!=null?nfx(x.dv,2)+'%':'-'}</b>${x.dv==null?'<small>informe o comprimento</small>':''}</div><div><span>ΔV total</span><b>${x.dvt!=null?nfx(x.dvt,2)+'%'+(x.part?'*':''):'-'}</b></div><div style="grid-column:1/-1"><span>Iz corrigido (FCT ${nfx(x.fct,2)} × FCA ${nfx(x.fca,2)})</span><b>${x.iz?nf(x.iz,1)+' A':'-'}</b></div>`:'<p class="cs-hint" style="grid-column:1/-1;margin:0">Informe a potência para calcular.</p>'};
   const msgs=x=>{const m=x&&x.msgs||[];return m.length?m.map(t=>`<div class="al">${I.alert}<span>${esc(t)}</span></div>`).join(''):(x&&x.ib>0?`<div class="al info">${I.check}<span>Sem pendências.</span></div>`:'')};
   const ph=(el,x,dj)=>{if(!el)return;const has=x&&x.ib>0;el.placeholder=has?(dj?(x.sugDj?String(x.sugDj)+' sugerido':'>200'):(x.sugCabo?nf(x.sugCabo,1)+' sugerido':'>120')):''};
   if(sheetSt.tipo==='c'){
@@ -2192,11 +2326,11 @@ function paintSheet(){
     ph(bg.querySelector('[data-f="dj"]'),x,true);ph(bg.querySelector('[data-f="cabo"]'),x,false);
     let dri='Sem DR neste circuito.';
     if(pc&&pc.grp){const it=((PR.q[c.quadroId]||{}).items||[]).find(i=>i.tag===pc.grp);dri=`Ligado ao ${pc.grp}${it?': '+String(it.disp).replace(/^Interruptor /,'')+' '+it.spec:''}`}
-    g('drinfo').textContent=dri;
+    g('drinfo').textContent=dri;g('agr').textContent=agrResumo(x,c.codigo);
     g('res').innerHTML=res(x);g('msgs').innerHTML=msgs(x);
   }else{
     const k=qById(sheetSt.id);if(!k){closeSheet(2);return}const x=R.f[k.id];
-    g('titulo').textContent=`Alimentação ${k.nome}`;
+    g('titulo').textContent=`Alimentação ${k.nome}`;g('agr').textContent=agrResumo(x,k.alim.codigo);
     ph(bg.querySelector('[data-ff="dj"]'),x,true);ph(bg.querySelector('[data-ff="cabo"]'),x,false);
     if(x&&x.ramal)g('fhint').textContent='Ramal de distribuição: disjuntor da categoria da entrada. Em branco, vale o cabo sugerido.';
     g('res').innerHTML=res(x);g('msgs').innerHTML=msgs(x);
@@ -2285,11 +2419,11 @@ function download(name,text,type){
 const fileName=s=>String(s||'servico').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^\w\-]+/g,'_').replace(/_+/g,'_').replace(/^_|_$/g,'');
 function linhas(){
   const s=cur,r=calc(s),P=calcProt(s,r);const nfp=(x,d)=>(x==null||!isFinite(x)||x==='')?'':Number(x).toLocaleString('pt-BR',{useGrouping:false,minimumFractionDigits:0,maximumFractionDigits:d});
-  const out=[['Quadro','Circuito','Tipo','Parcela da demanda','Descrição','Potência (W)','FP','Fases','Tensão (V)','Comprimento (m)','S (VA)','Ib (A)','Disjuntor (A)','Polos','Seção (mm²)','DR','ΔV circuito (%)','ΔV total (%)']];
+  const out=[['Quadro','Circuito','Tipo','Parcela da demanda','Descrição','Potência (W)','FP','Fases','Tensão (V)','Comprimento (m)','S (VA)','Ib (A)','Disjuntor (A)','Polos','Seção (mm²)','DR','ΔV circuito (%)','ΔV total (%)','Agrupamento','Temperatura (°C)','FCT','FCA','Iz corrigido (A)']];
   ordemQuadros(s).forEach(q=>{
     itensQuadro(s,q).forEach(it=>{
-      if(it.k==='c'){const c=it.o,x=r.c[c.id];out.push([q.nome,c.codigo,c.tipo,x.dem,c.desc,nfp(x.w,0),nfp(pos(c.fp,1),2),c.fases,x.volt,nfp(num(c.comp),1),nfp(x.va,0),nfp(x.ib,1),x.In||'',c.fases.length+'P',x.cabo?nfp(x.cabo,1):'',P.c[c.id].grp||'',nfp(x.dv,2),nfp(x.dvt,2)])}
-      else{const k=it.o,x=r.f[k.id];out.push([q.nome,k.alim.codigo,'QUA','','Alimentação '+k.nome,nfp(x.w,0),'',k.fases,x.volt,nfp(num(k.alim.comp),1),nfp(x.va,0),nfp(x.ib,1),x.In||'',k.fases.length+'P',x.cabo?nfp(x.cabo,1):'','',nfp(x.dv,2),nfp(x.dvt,2)])}
+      if(it.k==='c'){const c=it.o,x=r.c[c.id];out.push([q.nome,c.codigo,c.tipo,x.dem,c.desc,nfp(x.w,0),nfp(pos(c.fp,1),2),c.fases,x.volt,nfp(num(c.comp),1),nfp(x.va,0),nfp(x.ib,1),x.In||'',c.fases.length+'P',x.cabo?nfp(x.cabo,1):'',P.c[c.id].grp||'',nfp(x.dv,2),nfp(x.dvt,2),x.agrL||'',x.temp,nfp(x.fct,2),nfp(x.fca,2),nfp(x.iz,1)])}
+      else{const k=it.o,x=r.f[k.id];out.push([q.nome,k.alim.codigo,'QUA','','Alimentação '+k.nome,nfp(x.w,0),'',k.fases,x.volt,nfp(num(k.alim.comp),1),nfp(x.va,0),nfp(x.ib,1),x.In||'',k.fases.length+'P',x.cabo?nfp(x.cabo,1):'','',nfp(x.dv,2),nfp(x.dvt,2),x.agrL||'',x.temp,nfp(x.fct,2),nfp(x.fca,2),nfp(x.iz,1)])}
     });
     const t=r.q[q.id];out.push([q.nome,'Total','','','Instalado no quadro',nfp(t.w,0),'','','','',nfp(t.va,0),'','','','','','','']);
   });
@@ -2360,18 +2494,18 @@ function buildPrint(){
     const t=r.q[q.id];const f=r.f[q.id];const p=q.pai?qById(q.pai):null;
     const rows=itensQuadro(s,q).map(it=>{
       if(it.k==='c'){const c=it.o,x=r.c[c.id];const hs=x.ib>0;
-        return `<tr><td>${esc(c.codigo)}</td><td>${c.tipo}</td><td>${esc(c.desc)}</td><td class="n">${nf(x.w,0)}</td><td class="n">${nf(pos(c.fp,1),2)}</td><td>${c.fases}</td><td class="n">${x.volt}</td><td class="n">${nf(num(c.comp),1)}</td><td class="n">${hs?nf(x.va,0):''}</td><td class="n">${hs?nf(x.ib,1):''}</td><td class="n">${hs&&x.In?nf(x.In,0):''}</td><td class="n">${hs&&x.cabo?nf(x.cabo,1):''}</td><td class="n">${hs&&x.dv!=null?nfx(x.dv,2):''}</td><td class="n">${hs&&x.dvt!=null?nfx(x.dvt,2):''}</td></tr>`}
+        return `<tr><td>${esc(c.codigo)}</td><td>${c.tipo}</td><td>${esc(c.desc)}</td><td class="n">${nf(x.w,0)}</td><td class="n">${nf(pos(c.fp,1),2)}</td><td>${c.fases}</td><td class="n">${x.volt}</td><td class="n">${nf(num(c.comp),1)}</td><td class="n">${hs?nf(x.va,0):''}</td><td class="n">${hs?nf(x.ib,1):''}</td><td class="n">${hs&&x.In?nf(x.In,0):''}</td><td class="n">${hs&&x.cabo?nf(x.cabo,1):''}</td><td class="n">${hs?nfx(x.fct*x.fca*r.fx,2)+(x.agrL?' ('+x.agrL+')':''):''}</td><td class="n">${hs&&x.dv!=null?nfx(x.dv,2):''}</td><td class="n">${hs&&x.dvt!=null?nfx(x.dvt,2):''}</td></tr>`}
       const k=it.o,x=r.f[k.id];const hs=x.ib>0;
-      return `<tr><td>${esc(k.alim.codigo)}</td><td>QUA</td><td>Alimentação ${esc(k.nome)}</td><td class="n">${nf(x.w,0)}</td><td class="n"></td><td>${k.fases}</td><td class="n">${x.volt}</td><td class="n">${nf(num(k.alim.comp),1)}</td><td class="n">${hs?nf(x.va,0):''}</td><td class="n">${hs?nf(x.ib,1):''}</td><td class="n">${hs&&x.In?nf(x.In,0):''}</td><td class="n">${hs&&x.cabo?nf(x.cabo,1):''}</td><td class="n">${hs&&x.dv!=null?nfx(x.dv,2):''}</td><td class="n">${hs&&x.dvt!=null?nfx(x.dvt,2):''}</td></tr>`;
+      return `<tr><td>${esc(k.alim.codigo)}</td><td>QUA</td><td>Alimentação ${esc(k.nome)}</td><td class="n">${nf(x.w,0)}</td><td class="n"></td><td>${k.fases}</td><td class="n">${x.volt}</td><td class="n">${nf(num(k.alim.comp),1)}</td><td class="n">${hs?nf(x.va,0):''}</td><td class="n">${hs?nf(x.ib,1):''}</td><td class="n">${hs&&x.In?nf(x.In,0):''}</td><td class="n">${hs&&x.cabo?nf(x.cabo,1):''}</td><td class="n">${hs?nfx(x.fct*x.fca*r.fx,2)+(x.agrL?' ('+x.agrL+')':''):''}</td><td class="n">${hs&&x.dv!=null?nfx(x.dv,2):''}</td><td class="n">${hs&&x.dvt!=null?nfx(x.dvt,2):''}</td></tr>`;
     }).join('');
     const al=[];s.circuitos.filter(c=>c.quadroId===q.id).forEach(c=>(r.c[c.id].msgs||[]).forEach(m=>al.push(`${c.codigo}: ${m}`)));
     kidsOf(s,q.id).forEach(k=>(r.f[k.id].msgs||[]).forEach(m=>al.push(`${k.alim.codigo}: ${m}`)));
     const d=deseq(q,t.p);
     h+=`<div class="pr-sec"><h3>${esc(q.nome)} · ${esc(q.descricao||'')}</h3>
       <div class="sub">${q===rootOf(s)?'Quadro medidor, origem da instalação':`Alimentado por ${esc(p?p.nome:'')} (circuito ${esc(q.alim.codigo)})`} · ${q.fases} (${alimLbl(q.fases)})${q===rootOf(s)?'':' · FD '+nf(pos(q.fd,1),2)}${f&&f.ib>0?` · Ib ${nf(f.ib,1)} A · ${f.In?nf(f.In,0)+' A':'?'} · ${f.cabo?nf(f.cabo,1)+' mm²':'?'}`:''}</div>
-      <table class="pt"><thead><tr><th>Circ.</th><th>Tipo</th><th>Descrição</th><th class="n">Pot. (W)</th><th class="n">FP</th><th>Fases</th><th class="n">Tensão (V)</th><th class="n">Comp. (m)</th><th class="n">S (VA)</th><th class="n">Ib (A)</th><th class="n">Disj. (A)</th><th class="n">Cabo (mm²)</th><th class="n">ΔV (%)</th><th class="n">ΔV tot. (%)</th></tr></thead>
-      <tbody>${rows||'<tr><td colspan="14">Sem circuitos</td></tr>'}</tbody>
-      <tfoot><tr><td colspan="3">Total instalado</td><td class="n">${nf(t.w,0)}</td><td colspan="4"></td><td class="n">${nf(t.va,0)}</td><td colspan="5"></td></tr></tfoot></table>
+      <table class="pt"><thead><tr><th>Circ.</th><th>Tipo</th><th>Descrição</th><th class="n">Pot. (W)</th><th class="n">FP</th><th>Fases</th><th class="n">Tensão (V)</th><th class="n">Comp. (m)</th><th class="n">S (VA)</th><th class="n">Ib (A)</th><th class="n">Disj. (A)</th><th class="n">Cabo (mm²)</th><th class="n">FCT × FCA</th><th class="n">ΔV (%)</th><th class="n">ΔV tot. (%)</th></tr></thead>
+      <tbody>${rows||'<tr><td colspan="15">Sem circuitos</td></tr>'}</tbody>
+      <tfoot><tr><td colspan="3">Total instalado</td><td class="n">${nf(t.w,0)}</td><td colspan="4"></td><td class="n">${nf(t.va,0)}</td><td colspan="6"></td></tr></tfoot></table>
       <div class="pr-ph">${phTxt(q,t.p)}${d!=null?` · Desequilíbrio: ${nfx(d,1)}%`:''}</div>
       ${al.length?`<div class="pr-al">Pendências: ${al.map(esc).join('; ')}</div>`:''}
     </div>`;
@@ -2386,7 +2520,7 @@ function buildPrint(){
     <div class="pr-notes">Critérios de proteção: DR de 30 mA (NBR 5410, item 5.1.3.2.2) no modo automático para tomadas de uso geral e específico; iluminação sem DR, considerando pontos a 2,50 m ou mais do piso (mude para Sim em banheiros e áreas externas, quando for o caso). Chuveiro e cargas com disjuntor de 32 A ou mais recebem DR exclusivo; carregador de veículo elétrico recebe DR tipo A, ou tipo B quando o carregador não detecta corrente contínua de fuga de 6 mA (NBR 17019). Corrente nominal do DR: maior soma, por fase, das correntes nominais dos disjuntores a jusante. DPS classe II no quadro alimentado pelo medidor (modo automático), um por fase e um no neutro, com Uc de pelo menos 1,1 vez a tensão fase-neutro. Reserva de espaço conforme NBR 5410. Confirme a capacidade de interrupção dos disjuntores com a corrente de curto-circuito no ponto e a coordenação dos DR com os dados do fabricante.</div></div>`;
   h+=`<div class="pr-page"><h2>Diagrama de interligação dos quadros</h2>${interSVG(s,r,P2)}</div>`;
   ordemQuadros(s).forEach(q=>{h+=`<div class="pr-page"><h2>Diagrama unifilar · ${esc(q.nome)} · ${esc(q.descricao||'')}</h2>${unifilarSVG(s,q,r,P2)}</div>`});
-  h+=`<div class="pr-notes">Critérios: NBR 5410. Condutores de cobre, isolação PVC 70 °C, método de instalação B1, FCT × FCA = ${nf(r.fca,2)}. Queda de tensão calculada sem reatância, ρ = ${nf(r.rho,4)} Ω·mm²/m, limites de ${nf(r.lc,1)}% no circuito terminal e ${nf(r.lt,1)}% no total a partir do quadro medidor. Alimentadores dimensionados pela fase mais carregada, com o fator de demanda de cada quadro. Entrada de energia pela Neoenergia DIS-NOR-030 REV 07: carga instalada (6.26), demanda (6.27) e categoria (Anexo I, Tabela 1), sujeita à confirmação da distribuidora (6.1.4.3). O memorial completo de cálculo é gerado pelo botão Memorial.</div>
+  h+=`<div class="pr-notes">Critérios: NBR 5410. Condutores de cobre, isolação PVC 70 °C, método de instalação B1, capacidade corrigida em cada circuito pelo FCT (temperatura, Tabela 40) e pelo FCA (agrupamento, Tabela 42), coluna FCT × FCA; temperatura de referência de ${nf(r.tAmb,0)} °C. Queda de tensão calculada sem reatância, ρ = ${nf(r.rho,4)} Ω·mm²/m, limites de ${nf(r.lc,1)}% no circuito terminal e ${nf(r.lt,1)}% no total a partir do quadro medidor. Alimentadores dimensionados pela fase mais carregada, com o fator de demanda de cada quadro. Entrada de energia pela Neoenergia DIS-NOR-030 REV 07: carga instalada (6.26), demanda (6.27) e categoria (Anexo I, Tabela 1), sujeita à confirmação da distribuidora (6.1.4.3). O memorial completo de cálculo é gerado pelo botão Memorial.</div>
   <div class="pr-sign"><div>${esc(s.responsavel||'')}</div></div>`;
   $('#print').innerHTML=h;
 }
@@ -2423,6 +2557,8 @@ document.addEventListener('click',e=>{
   if(b.closest('#csheet')&&(a==='delc'||a==='goto'))closeSheet(2);
   switch(a){
     case 'nop':break;
+    case 'agr':{const r=b.closest('[data-cid],[data-fq]');if(r)agrModal(r.dataset.cid?'c':'f',r.dataset.cid||r.dataset.fq);break;}
+    case 'agrok':agrAplica();break;
     case 'msheet':openSheet(b.dataset.cid?'c':'f',b.dataset.cid||b.dataset.fq);break;
     case 'closesheet':closeSheet(1);break;
     case 'menu':openMenu();break;

@@ -1,7 +1,7 @@
 /* Quadro de Cargas · Souza Engenharia · service worker
    Página: rede primeiro (atualizações do GitHub chegam na hora) e cache sem internet.
    Ícones e manifesto: cache primeiro. Chamadas ao Google Apps Script não passam por aqui. */
-const CACHE='quadro-cargas-v2';
+const CACHE='quadro-cargas-v3';
 const ARQS=['./','./index.html','./manifest.json','./icons/icon-192.png','./icons/icon-512.png','./icons/icon-maskable-512.png','./icons/apple-touch-icon.png','./icons/favicon-32.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ARQS)).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k.startsWith('quadro-cargas-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
